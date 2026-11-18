@@ -15,6 +15,15 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**", // ImgBB এর ডোমেন
+      },
+      
+    ],
+  },
 };
 
 export default nextConfig;

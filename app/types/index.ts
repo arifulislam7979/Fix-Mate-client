@@ -33,21 +33,20 @@ export interface AppUser {
   bio?: string;
 }
 
-export interface RepairService {
-  _id: string;
+export interface IServices {
   title: string;
-  category: ServiceCategory;
+  category: string;
   description: string;
   image: string;
   basePrice: number;
   estimatedDuration: string;
-  serviceMode: ServiceMode;
+  serviceMode: string;
   serviceArea: string;
   technicianName: string;
   technicianEmail: string;
-  approvalStatus: ApprovalStatus;
-  isAvailable: boolean;
-  createdAt: string;
+  approvalStatus?: string;
+  isAvailable?: boolean;
+  createdAt?: Date
 }
 
 export interface RepairBooking {
