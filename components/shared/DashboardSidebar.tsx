@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,8 @@ import {
   User,
   LogOut,
   Home,
+  Plus,
+  CreditCard,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -23,62 +25,91 @@ interface DashboardSidebarProps {
   onItemClick?: () => void;
 }
 
-export default function DashboardSidebar({ onItemClick }: DashboardSidebarProps) {
+export default function DashboardSidebar({
+  onItemClick,
+}: DashboardSidebarProps) {
+  const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  const user = session?.user as
-    | {
-        name?: string;
-        email?: string;
-        image?: string;
-        role?: "customer" | "technician" | "admin";
-      }
-    | undefined;
+  const user = session?.user;
 
   const role = user?.role || "customer";
 
   const handleSignOut = async () => {
     try {
-      await signOut({
-        fetchOptions: {
-          onSuccess: () => {
-            toast.success("Signed out successfully");
-            window.location.href = "/sign-in";
-          },
-        },
-      });
+      const { error } = await signOut();
+      if (error) throw new Error(error.message);
+      toast.success("Signed out successfully");
+      router.replace("/sign-in");
+      router.refresh();
     } catch {
       toast.error("Failed to sign out");
     }
   };
 
-  // রোল অনুযায়ী মেনু আইটেম
   const getNavItems = () => {
     if (role === "admin") {
       return [
         { name: "Overview", href: "/dashboard/admin", icon: LayoutDashboard },
-        { name: "Manage Services", href: "/dashboard/admin/services", icon: Wrench },
-        { name: "All Bookings", href: "/dashboard/admin/bookings", icon: ClipboardList },
         { name: "Manage Users", href: "/dashboard/admin/users", icon: Users },
+        {
+          name: "Manage Services",
+          href: "/dashboard/admin/services",
+          icon: Wrench,
+        },
+        {
+          name: "All Bookings",
+          href: "/dashboard/admin/bookings",
+          icon: ClipboardList,
+        },
+        {
+          name: "Transactions",
+          href: "/dashboard/admin/transections",
+          icon: CreditCard,
+        },
         { name: "My Profile", href: "/dashboard/profile", icon: User },
       ];
     }
 
     if (role === "technician") {
       return [
-        { name: "Overview", href: "/dashboard/technician", icon: LayoutDashboard },
-        { name: "Assigned Jobs", href: "/dashboard/technician/jobs", icon: ClipboardList },
-        { name: "My Services", href: "/dashboard/technician/services", icon: Wrench },
+        {
+          name: "Overview",
+          href: "/dashboard/technician",
+          icon: LayoutDashboard,
+        },
+        {
+          name: "Add-Service",
+          href: "/dashboard/technician/add-service",
+          icon: Plus,
+        },
+        {
+          name: "My Services",
+          href: "/dashboard/technician/my-services",
+          icon: Wrench,
+        },
+        {
+          name: "Manage Request",
+          href: "/dashboard/technician/requests",
+          icon: ClipboardList,
+        },
         { name: "My Profile", href: "/dashboard/profile", icon: User },
       ];
     }
 
-    // Default: Customer
     return [
       { name: "Overview", href: "/dashboard/customer", icon: LayoutDashboard },
-      { name: "My Bookings", href: "/dashboard/customer/bookings", icon: CalendarCheck },
-      { name: "Book a Repair", href: "/services", icon: PlusCircle },
+      {
+        name: "My Bookings",
+        href: "/dashboard/customer/bookings",
+        icon: CalendarCheck,
+      },
+      {
+        name: "Payment History",
+        href: "/dashboard/customer/payments",
+        icon: PlusCircle,
+      },
       { name: "My Profile", href: "/dashboard/profile", icon: User },
     ];
   };
@@ -86,7 +117,7 @@ export default function DashboardSidebar({ onItemClick }: DashboardSidebarProps)
   const navItems = getNavItems();
 
   return (
-    <div className="flex h-full flex-col justify-between py-6 px-4">
+    <div className="flex h-full flex-col justify-between py-6 px-4 bg-slate-900 text-slate-100 border-r border-slate-800">
       <div className="space-y-6">
         {/* Brand Logo */}
         <Link
@@ -97,27 +128,27 @@ export default function DashboardSidebar({ onItemClick }: DashboardSidebarProps)
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm transition-transform group-hover:scale-105">
             <Wrench className="h-5 w-5" />
           </div>
-          <span className="text-xl font-bold tracking-tight">
+          <span className="text-xl font-bold tracking-tight text-white">
             Fix<span className="text-primary">Mate</span>
           </span>
         </Link>
 
         {/* User Info Card */}
-        <div className="rounded-2xl border border-border/70 bg-muted/40 p-3.5">
+        <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-3.5 shadow-xs">
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border border-border">
+            <Avatar className="h-10 w-10 border border-slate-700">
               <AvatarImage src={user?.image || ""} alt={user?.name || "User"} />
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+              <AvatarFallback className="bg-primary/20 text-primary-foreground font-semibold">
                 {user?.name?.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-foreground">
+              <p className="truncate text-sm font-semibold text-white">
                 {user?.name}
               </p>
               <Badge
                 variant="secondary"
-                className="mt-1 capitalize text-[10px] font-semibold bg-primary/10 text-primary"
+                className="mt-1 capitalize text-[10px] font-semibold bg-primary/20 text-primary-foreground border-primary/30"
               >
                 {role} Panel
               </Badge>
@@ -138,8 +169,8 @@ export default function DashboardSidebar({ onItemClick }: DashboardSidebarProps)
                 className={cn(
                   "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all",
                   active
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm font-semibold"
+                    : "text-slate-400 hover:bg-slate-800/80 hover:text-white",
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -151,20 +182,20 @@ export default function DashboardSidebar({ onItemClick }: DashboardSidebarProps)
       </div>
 
       {/* Bottom Actions */}
-      <div className="space-y-2 border-t border-border/70 pt-4">
+      <div className="space-y-2 border-t border-slate-800 pt-4">
         <Link
           href="/"
           onClick={onItemClick}
-          className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-slate-800/80 hover:text-white"
         >
           <Home className="h-4 w-4" />
           <span>Back to Home</span>
         </Link>
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
+          className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-red-400 transition-colors hover:bg-red-950/40 hover:text-red-300 cursor-pointer"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-4 w-4 text-red-400 " />
           <span>Sign Out</span>
         </button>
       </div>
