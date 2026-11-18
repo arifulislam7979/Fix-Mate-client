@@ -21,13 +21,14 @@ export type BookingStatus =
   | "completed"
   | "cancelled";
 
-export interface AppUser {
+export interface Users {
   id: string;
   _id?: string;
   name: string;
   email: string;
   image?: string;
   role: UserRole;
+  isVerified?: boolean;
   phone?: string;
   area?: string;
   bio?: string;
@@ -84,4 +85,17 @@ export interface PaymentRecord {
   stripeSessionId: string;
   paymentStatus: "paid";
   paidAt: string;
+}
+export interface IServiceItem {
+  _id: string;
+  title: string;
+  category: string;
+  description: string;
+  image: string;
+  basePrice: number;
+  estimatedDuration: string;
+  serviceMode: string;
+  serviceArea: string;
+  technicianName: string;
+  technicianEmail: string;
 }

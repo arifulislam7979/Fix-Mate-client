@@ -48,7 +48,6 @@ interface MyServicesProps {
   initialServices: IServiceItem[];
 }
 
-
 export default function MyServices({ initialServices }: MyServicesProps) {
   const [services, setServices] = useState<IServiceItem[]>(initialServices);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -69,7 +68,7 @@ export default function MyServices({ initialServices }: MyServicesProps) {
     );
 
     try {
-      const result = await updateServices(id, { isAvailable: updatedStatus });
+      await updateServices(id, { isAvailable: updatedStatus });
 
       toast.success(
         updatedStatus

@@ -1,4 +1,6 @@
+'use server'
 import { IServices,} from "@/app/types";
+import { revalidatePath } from "next/cache";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
@@ -23,7 +25,9 @@ export const updateServices = async(id:string, data:unknown) => {
         },
         body: JSON.stringify(data)
     })
+    revalidatePath("/dashboard/technician/my-services");
     return res.json()
+    
 }
 
 export const deleteServices = async(id: string) => {
