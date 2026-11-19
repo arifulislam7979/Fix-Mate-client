@@ -57,8 +57,8 @@ export interface IServiceItem extends IServices {
   _id: string; 
 }
 
-export interface RepairBooking {
-  _id: string;
+export interface Bookings {
+  _id?: string;
   serviceId: string;
   serviceTitle: string;
   serviceImage: string;
@@ -69,6 +69,7 @@ export interface RepairBooking {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  customerRole: UserRole;
   address: string;
   preferredDate: string;
   problemDescription: string;

@@ -2,16 +2,12 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { IServiceItem } from "@/app/types";
+import { Bookings, IServiceItem, ServiceCategory, UserRole } from "@/app/types";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { X, Loader2, Calendar, MapPin, Phone, FileText } from "lucide-react";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5000";
+import { bookingsData } from "@/lib/actions/bookings";
 
 interface BookButtonProps {
   isAvailable: boolean;
@@ -37,13 +33,11 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
       return;
     }
 
-    // ২. শুধু customer রোলই বুকিং করতে পারবে
     if (user.role !== "customer") {
       toast.error("Only customers are allowed to book repair services.");
       return;
     }
 
-    // ৩. লগইন করা customer হলে ইনফরমেশন নেওয়ার মডাল ওপেন হবে
     setIsModalOpen(true);
   };
 
@@ -54,17 +48,19 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
     try {
       setSubmitting(true);
 
-      const bookingData = {
+      const bookingData: Bookings = {
         serviceId: service._id,
         serviceTitle: service.title,
         serviceImage: service.image,
-        category: service.category,
+        category: service.category as ServiceCategory,
         basePrice: Number(service.basePrice),
         finalAmount: Number(service.basePrice),
         technicianName: service.technicianName,
         technicianEmail: service.technicianEmail,
         customerName: user.name || "",
         customerEmail: user.email || "",
+        customerRole: ((user as { role?: string }).role ||
+          "customer") as UserRole,
         customerPhone: phone.trim(),
         address: address.trim(),
         preferredDate,
@@ -73,24 +69,22 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
         paymentStatus: "unpaid",
       };
 
-      const res = await fetch(`${BASE_URL}/bookings`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bookingData),
-      });
+      const result = await bookingsData(bookingData);
 
-      const result = await res.json();
-
-      if (res.ok && (result?.insertedId || result?.success)) {
+      if (result?.insertedId || result?.success) {
         toast.success("Service booked successfully!");
+        router.push('/dashboard/customer/bookings')
         setIsModalOpen(false);
         setPhone("");
         setAddress("");
         setPreferredDate("");
         setProblemDescription("");
+        
         router.refresh();
       } else {
-        toast.error(result?.message || "Failed to book service. Please try again.");
+        toast.error(
+          result?.message || "Failed to book service. Please try again.",
+        );
       }
     } catch (error) {
       console.error("Error booking service:", error);
