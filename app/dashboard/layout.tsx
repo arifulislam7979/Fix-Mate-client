@@ -1,16 +1,13 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, ShieldCheck, Loader2 } from "lucide-react";
 import DashboardSidebar from "@/components/shared/DashboardSidebar";
 
-
-export default function DashboardLayout({
+function DashboardLayoutContent({
   children,
 }: {
   children: React.ReactNode;
@@ -80,10 +77,8 @@ export default function DashboardLayout({
           <div className="flex items-center gap-3">
             {/* Mobile Sidebar Trigger */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger>
-                <Button variant="outline" size="icon" className="lg:hidden rounded-xl">
-                  <Menu className="h-5 w-5" />
-                </Button>
+              <SheetTrigger className="lg:hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border border-input bg-background text-foreground shadow-xs hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                <Menu className="h-5 w-5" />
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0">
                 <DashboardSidebar onItemClick={() => setMobileOpen(false)} />
@@ -109,5 +104,26 @@ export default function DashboardLayout({
         <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background">
+          <div className="flex items-center gap-2.5 text-muted-foreground">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <span className="font-medium">Loading dashboard...</span>
+          </div>
+        </div>
+      }
+    >
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </Suspense>
   );
 }

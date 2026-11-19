@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { IServiceItem } from "@/app/types";
 import {
   ArrowLeft,
   Clock,
@@ -19,11 +18,7 @@ import {
 } from "lucide-react";
 import { getSession } from "@/lib/core/server";
 import BookButton from "@/components/shared/BookButton";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5000";
+import { getServiceDetails } from "@/lib/api/services";
 
 interface SessionUser {
   id?: string;
@@ -32,39 +27,17 @@ interface SessionUser {
   role?: "customer" | "technician" | "admin" | string;
 }
 
-async function getCurrentUser(): Promise<SessionUser | null> {
-  try {
-    const session = await getSession();
-    return session?.user || null;
-  } catch {
-    return null;
-  }
-}
-
-async function getServiceById(id: string): Promise<IServiceItem | null> {
-  try {
-    const res = await fetch(`${BASE_URL}/services/${id}`, {
-      cache: "no-store",
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data?.service || data || null;
-  } catch (error) {
-    console.error("Failed to fetch service details:", error);
-    return null;
-  }
-}
-
 async function ServiceDetailsContent({ id }: { id: string }) {
-  const [service, currentUser] = await Promise.all([
-    getServiceById(id),
-    getCurrentUser(),
+  const [service, session] = await Promise.all([
+    getServiceDetails(id),
+    getSession(),
   ]);
 
   if (!service || !service._id) {
     notFound();
   }
 
+  const currentUser = session?.user as SessionUser | undefined;
   const userRole = currentUser?.role?.toLowerCase();
   const isCustomer = userRole === "customer";
   const isAvailable = service.isAvailable !== false;
@@ -237,13 +210,20 @@ async function ServiceDetailsContent({ id }: { id: string }) {
   );
 }
 
-export default async function ServiceDetailsPage({
+async function ServiceDetailsWrapper({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  return <ServiceDetailsContent id={id} />;
+}
 
+export default function ServiceDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   return (
     <div className="container mx-auto px-4 py-8">
       <Suspense
@@ -254,7 +234,7 @@ export default async function ServiceDetailsPage({
           </div>
         }
       >
-        <ServiceDetailsContent id={id} />
+        <ServiceDetailsWrapper params={params} />
       </Suspense>
     </div>
   );
