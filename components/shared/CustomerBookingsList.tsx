@@ -14,8 +14,10 @@ import {
   AlertTriangle,
   CheckCircle2,
   PackageOpen,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
+import { cancelBooking } from "@/lib/actions/bookings";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -46,24 +48,29 @@ export default function CustomerBookingsList({
   const [bookingToCancel, setBookingToCancel] = useState<Bookings | null>(null);
   const [cancelling, setCancelling] = useState(false);
 
+  const [bookingToRemoveFromUi, setBookingToRemoveFromUi] =
+    useState<Bookings | null>(null);
+
+  const storageKey = `hidden_cancelled_bookings_${customerEmail || "guest"}`;
+
+  const [hiddenIds, setHiddenIds] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const handleConfirmCancel = async () => {
     if (!bookingToCancel?._id) return;
 
     try {
       setCancelling(true);
-      const res = await fetch(
-        `${BASE_URL}/bookings/${bookingToCancel._id}/cancel`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-      const result = await res.json();
+      const result = await cancelBooking(bookingToCancel._id);
 
-      if (
-        res.ok &&
-        (result?.success || result?.modifiedCount > 0 || result?._id)
-      ) {
+      if (result?.success || result?.modifiedCount > 0 || result?._id) {
         toast.success("Booking request cancelled.");
         setBookings((prev) =>
           prev.map((item) =>
@@ -83,6 +90,24 @@ export default function CustomerBookingsList({
     } finally {
       setCancelling(false);
     }
+  };
+
+  const handleRemoveFromUi = () => {
+    if (!bookingToRemoveFromUi?._id) return;
+
+    const updatedHidden = Array.from(
+      new Set([...hiddenIds, bookingToRemoveFromUi._id]),
+    );
+    setHiddenIds(updatedHidden);
+
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(updatedHidden));
+    } catch (error) {
+      console.error("Failed to save hidden booking preference:", error);
+    }
+
+    toast.success("Removed from your bookings view.");
+    setBookingToRemoveFromUi(null);
   };
 
   const handlePayNow = async (booking: Bookings) => {
@@ -117,7 +142,11 @@ export default function CustomerBookingsList({
     }
   };
 
-  if (bookings.length === 0) {
+  const visibleBookings = bookings.filter(
+    (item) => !item._id || !hiddenIds.includes(item._id),
+  );
+
+  if (visibleBookings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/60 px-6 py-14 text-center">
         <PackageOpen className="h-11 w-11 text-muted-foreground/70 mb-3" />
@@ -153,11 +182,12 @@ export default function CustomerBookingsList({
               </tr>
             </thead>
             <tbody className="divide-y divide-border/70 text-sm">
-              {bookings.map((booking) => {
+              {visibleBookings.map((booking) => {
                 const statusKey = (booking.status || "requested").toLowerCase();
                 const isPaid = booking.paymentStatus === "paid";
                 const canCancel = statusKey === "requested";
                 const canPay = statusKey === "completed" && !isPaid;
+                const canRemoveFromUi = statusKey === "cancelled";
                 const displayAmount =
                   statusKey === "completed" && booking.finalAmount
                     ? booking.finalAmount
@@ -264,14 +294,26 @@ export default function CustomerBookingsList({
                             size="sm"
                             variant="destructive"
                             onClick={() => setBookingToCancel(booking)}
-                            className="rounded-lg cursor-pointer"
+                            className="rounded-lg cursor-pointer hover:text-red-500"
                           >
                             <XCircle className="mr-1.5 h-3.5 w-3.5" />
                             Cancel
                           </Button>
                         )}
 
-                        {!canPay && !canCancel && (
+                        {canRemoveFromUi && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setBookingToRemoveFromUi(booking)}
+                            className="rounded-lg text-muted-foreground hover:text-rose-600 cursor-pointer"
+                          >
+                            <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                            Remove
+                          </Button>
+                        )}
+
+                        {!canPay && !canCancel && !canRemoveFromUi && (
                           <span className="text-xs text-muted-foreground">
                             —
                           </span>
@@ -288,11 +330,12 @@ export default function CustomerBookingsList({
 
       {/* Mobile Card View */}
       <div className="grid grid-cols-1 gap-4 md:hidden">
-        {bookings.map((booking) => {
+        {visibleBookings.map((booking) => {
           const statusKey = (booking.status || "requested").toLowerCase();
           const isPaid = booking.paymentStatus === "paid";
           const canCancel = statusKey === "requested";
           const canPay = statusKey === "completed" && !isPaid;
+          const canRemoveFromUi = statusKey === "cancelled";
           const displayAmount =
             statusKey === "completed" && booking.finalAmount
               ? booking.finalAmount
@@ -355,7 +398,7 @@ export default function CustomerBookingsList({
                 </p>
               </div>
 
-              {(canPay || canCancel) && (
+              {(canPay || canCancel || canRemoveFromUi) && (
                 <div className="flex items-center justify-end gap-2 pt-2">
                   {canPay && (
                     <Button
@@ -386,6 +429,17 @@ export default function CustomerBookingsList({
                     >
                       <XCircle className="mr-1.5 h-3.5 w-3.5" />
                       Cancel
+                    </Button>
+                  )}
+                  {canRemoveFromUi && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setBookingToRemoveFromUi(booking)}
+                      className="rounded-lg text-muted-foreground hover:text-rose-600 cursor-pointer"
+                    >
+                      <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                      Remove
                     </Button>
                   )}
                 </div>
@@ -440,6 +494,49 @@ export default function CustomerBookingsList({
                 ) : (
                   "Yes, Cancel"
                 )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Cancelled Booking from UI Only Modal */}
+      {bookingToRemoveFromUi && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold">Remove from List?</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  This only hides{" "}
+                  <strong className="text-foreground">
+                    {bookingToRemoveFromUi.serviceTitle}
+                  </strong>{" "}
+                  from your current bookings view; your booking history remains
+                  saved.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setBookingToRemoveFromUi(null)}
+                className="rounded-xl cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleRemoveFromUi}
+                className="rounded-xl cursor-pointer"
+              >
+                Remove from View
               </Button>
             </div>
           </div>

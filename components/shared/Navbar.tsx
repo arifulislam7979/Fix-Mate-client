@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
@@ -33,7 +33,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-export default function Navbar() {
+function NavbarContent() {
   const pathname = usePathname();
   const { data: session, isPending } = useSession();
   const [isOpen, setIsOpen] = useState(false);
@@ -81,7 +81,10 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo */}
-        <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-2.5 group">
+        <Link
+          href="/"
+          className="flex shrink-0 items-center gap-2 sm:gap-2.5 group"
+        >
           <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm transition-transform group-hover:scale-105">
             <Wrench className="h-4 w-4 sm:h-5 sm:w-5" />
           </div>
@@ -157,9 +160,7 @@ export default function Navbar() {
 
                 <DropdownMenuSeparator className="my-1 bg-border/60" />
 
-                <DropdownMenuItem
-                  className="rounded-xl py-2 px-2.5 transition-colors focus:bg-primary/10 focus:text-primary"
-                >
+                <DropdownMenuItem className="rounded-xl py-2 px-2.5 transition-colors focus:bg-primary/10 focus:text-primary">
                   <Link
                     href={getDashboardRoute()}
                     className="cursor-pointer flex items-center gap-2.5 w-full font-medium text-sm"
@@ -169,9 +170,7 @@ export default function Navbar() {
                   </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem
-                  className="rounded-xl py-2 px-2.5 transition-colors focus:bg-primary/10 focus:text-primary"
-                >
+                <DropdownMenuItem className="rounded-xl py-2 px-2.5 transition-colors focus:bg-primary/10 focus:text-primary">
                   <Link
                     href="/dashboard/profile"
                     className="cursor-pointer flex items-center gap-2.5 w-full font-medium text-sm"
@@ -226,7 +225,10 @@ export default function Navbar() {
               className="rounded-full focus:outline-none"
             >
               <Avatar className="h-8 w-8 border border-border">
-                <AvatarImage src={user?.image || ""} alt={user?.name || "User"} />
+                <AvatarImage
+                  src={user?.image || ""}
+                  alt={user?.name || "User"}
+                />
                 <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                   {user?.name?.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
@@ -383,5 +385,17 @@ export default function Navbar() {
         </div>
       </div>
     </header>
+  );
+}
+
+export default function Navbar() {
+  return (
+    <Suspense
+      fallback={
+        <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/95 h-16" />
+      }
+    >
+      <NavbarContent />
+    </Suspense>
   );
 }

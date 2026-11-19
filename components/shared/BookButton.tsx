@@ -73,13 +73,13 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
 
       if (result?.insertedId || result?.success) {
         toast.success("Service booked successfully!");
-        router.push('/dashboard/customer/bookings')
+        router.push("/dashboard/customer/bookings");
         setIsModalOpen(false);
         setPhone("");
         setAddress("");
         setPreferredDate("");
         setProblemDescription("");
-        
+
         router.refresh();
       } else {
         toast.error(

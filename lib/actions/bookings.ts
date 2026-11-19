@@ -27,3 +27,13 @@ export const getCustomerBookings = async (email: string) => {
 
   return res.json();
 };
+
+export const cancelBooking = async (id: string) => {
+  const res = await fetch(`${BASE_URL}/bookings/${id}/cancel`, {
+    method: "PATCH",
+    headers: {
+        "Content-Type": "application/json"
+    },
+  });
+  return res.json();
+};
