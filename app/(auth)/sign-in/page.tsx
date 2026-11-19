@@ -21,7 +21,10 @@ import { Wrench, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
+  const rawRedirect = searchParams.get("redirectTo");
+  const callbackUrl =
+    rawRedirect && rawRedirect.startsWith("/") ? rawRedirect : null;
+
   const { data: session, isPending } = useSession();
 
   const [email, setEmail] = useState("");
@@ -47,25 +50,28 @@ function SignInForm() {
     try {
       setLoading(true);
       const { data, error } = await signIn.email({
-        email,
+        email: email.trim().toLowerCase(),
         password,
+        callbackURL: callbackUrl || "/",
       });
 
       if (error) {
         toast.error(error.message || "Invalid email or password.");
         return;
       }
-      if(data){
-        toast.success("Welcome back to FixMate!");
-        router.push('/')
-        return
-      }
-    //   const role = data?.user?.role || "customer";
-    //   router.push(callbackUrl || `/dashboard/${role}`);
 
+      if (data) {
+        toast.success("Welcome back to FixMate!");
+        const role = data.user?.role || "customer";
+        router.replace(callbackUrl || `/dashboard/${role}`);
+        router.refresh();
+        return;
+      }
     } catch (err: unknown) {
       const errorMessage =
-        err instanceof Error ? err.message : "Something went wrong during sign in.";
+        err instanceof Error
+          ? err.message
+          : "Something went wrong during sign in.";
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -164,7 +170,7 @@ function SignInForm() {
           {/* Submit Button */}
           <Button
             type="submit"
-            className="mt-2 h-11 w-full rounded-xl font-semibold shadow-md transition-all hover:opacity-95"
+            className="mt-2 h-11 w-full rounded-xl font-semibold shadow-md transition-all hover:opacity-95 cursor-pointer"
             disabled={loading}
           >
             {loading ? (
@@ -178,7 +184,7 @@ function SignInForm() {
           </Button>
         </form>
 
-        {/* Divider with background cover for text to prevent line overlap */}
+        {/* Divider */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border/80" />
@@ -220,7 +226,11 @@ function SignInForm() {
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link
-            href="/sign-up"
+            href={
+              callbackUrl
+                ? `/sign-up?redirectTo=${encodeURIComponent(callbackUrl)}`
+                : "/sign-up"
+            }
             className="font-semibold text-primary hover:underline"
           >
             Sign Up
