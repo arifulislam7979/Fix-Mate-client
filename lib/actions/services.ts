@@ -36,3 +36,14 @@ export const deleteServices = async(id: string) => {
     })
     return res.json()
 }
+
+export const statusUpdate =async(id: string, data: unknown) => {
+    const res = await fetch(`${BASE_URL}/services/${id}/status`,{
+        method: "PATCH",
+        headers: {
+             "Content-Type": "application/json" 
+        },
+        body: JSON.stringify(data)
+    })
+    return res.json()
+}

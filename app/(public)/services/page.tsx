@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { IServiceItem } from "@/app/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -22,7 +23,7 @@ async function getApprovedServices() {
 }
 
 export default async function ServicesPage() {
-  const services = await getApprovedServices();
+  const services:IServiceItem[] = await getApprovedServices();
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">

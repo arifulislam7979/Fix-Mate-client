@@ -34,7 +34,9 @@ export interface Users {
   bio?: string;
 }
 
+
 export interface IServices {
+  _id?: string;
   title: string;
   category: string;
   description: string;
@@ -45,9 +47,14 @@ export interface IServices {
   serviceArea: string;
   technicianName: string;
   technicianEmail: string;
-  approvalStatus?: string;
+  approvalStatus?: ApprovalStatus;
   isAvailable?: boolean;
-  createdAt?: Date
+  createdAt?: Date | string;
+}
+
+
+export interface IServiceItem extends IServices {
+  _id: string; 
 }
 
 export interface RepairBooking {
@@ -85,17 +92,4 @@ export interface PaymentRecord {
   stripeSessionId: string;
   paymentStatus: "paid";
   paidAt: string;
-}
-export interface IServiceItem {
-  _id: string;
-  title: string;
-  category: string;
-  description: string;
-  image: string;
-  basePrice: number;
-  estimatedDuration: string;
-  serviceMode: string;
-  serviceArea: string;
-  technicianName: string;
-  technicianEmail: string;
 }
