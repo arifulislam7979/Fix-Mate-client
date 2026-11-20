@@ -33,6 +33,23 @@ export interface Users {
   area?: string;
   bio?: string;
 }
+export type PaymentStatus = "unpaid" | "paid";
+
+export interface RepairRequestBooking {
+  _id: string;
+  serviceTitle: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  address: string;
+  preferredDate: string;
+  problemDescription: string;
+  basePrice: number;
+  finalAmount: number;
+  technicianEmail?: string;
+  status: BookingStatus;
+  paymentStatus: PaymentStatus;
+}
 
 
 export interface IServices {
