@@ -18,11 +18,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { cancelBooking } from "@/lib/actions/bookings";
+import { createPayment } from "@/lib/actions/payment";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5000";
 
 const STATUS_BADGE_STYLES: Record<string, string> = {
   requested: "bg-blue-500/15 text-blue-600 border-blue-500/30",
@@ -115,25 +112,15 @@ export default function CustomerBookingsList({
 
     try {
       setPayingId(booking._id);
-      const res = await fetch(
-        `${BASE_URL}/api/payments/create-checkout-session`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            bookingId: booking._id,
-            customerEmail: customerEmail || booking.customerEmail,
-          }),
-        },
-      );
 
-      const data = await res.json();
+      const data = await createPayment(booking);
 
-      if (res.ok && data?.url) {
-        window.location.href = data.url;
-      } else {
-        toast.error(data?.message || "Failed to start Stripe checkout.");
+      if (typeof data?.url === "string" && data.url.trim().length > 0) {
+        window.location.assign(data.url.trim());
+        return;
       }
+
+      toast.error(data?.message || "Failed to start Stripe checkout.");
     } catch (error) {
       console.error("Payment session error:", error);
       toast.error("Could not initiate payment. Please try again.");

@@ -18,7 +18,6 @@ const CustomerBookings = async () => {
   }
 
   const bookings = await getCustomerBookings(session.user.email);
-  console.log(bookings);
   return (
     <div className="space-y-6">
       {/* Page Header */}
