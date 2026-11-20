@@ -1,6 +1,6 @@
 "use server";
 
-import { Bookings } from "@/app/types";
+import { Bookings, RepairRequestBooking } from "@/app/types";
 import { BookingStatusUpdatePayload } from "@/components/shared/TechnicianRequestsClient";
 import { notFound } from "next/navigation";
 
@@ -39,28 +39,69 @@ export const cancelBooking = async (id: string) => {
   return res.json();
 };
 
-export const technicianBookingData = async (email: string) => {
-  const res = await fetch(
-    `${BASE_URL}/bookings?technicianEmail=${encodeURIComponent(
-      email,
-    )}`,{
-      cache: "no-store",
-    },
-  );
-  if(!res.ok) {
-    notFound()
+export const technicianBookingData = async (
+  technicianEmail: string,
+  options?: { status?: string; search?: string },
+) => {
+  const params = new URLSearchParams();
+  params.set("technicianEmail", technicianEmail.trim().toLowerCase());
+
+  if (
+    options?.status &&
+    options.status.trim() &&
+    options.status.trim().toLowerCase() !== "all"
+  ) {
+    params.set("status", options.status.trim().toLowerCase());
   }
-  return res.json()
+
+  if (options?.search && options.search.trim()) {
+    params.set("search", options.search.trim());
+  }
+
+  const res = await fetch(`${BASE_URL}/bookings?${params.toString()}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  return res.json();
 };
 
-export const bookingStatusUpdate = async(id:string, data:BookingStatusUpdatePayload)=> {
+export const bookingStatusUpdate = async (
+  id: string,
+  data: BookingStatusUpdatePayload,
+) => {
   const res = await fetch(`${BASE_URL}/bookings/${id}/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        
-        body: JSON.stringify(data),
-      });
-    return res.json()
-}
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify(data),
+  });
+  return res.json();
+};
+
+export const getAllBookings = async (status?: string) => {
+  const params = new URLSearchParams();
+  if (status && status !== "all") {
+    params.set("status", status);
+  }
+
+  const queryString = params.toString();
+  const url = queryString
+    ? `${BASE_URL}/bookings?${queryString}`
+    : `${BASE_URL}/bookings`;
+
+  const res = await fetch(url, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  return res.json();
+};

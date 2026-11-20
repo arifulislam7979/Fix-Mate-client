@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,17 +16,13 @@ import {
   MapPin,
   Calendar,
   FileText,
+  Search,
   X,
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { BookingStatus, RepairRequestBooking } from "@/app/types";
 import { bookingStatusUpdate } from "@/lib/actions/bookings";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5000";
 
 const statusStyleMap: Record<
   BookingStatus,
@@ -57,6 +53,26 @@ const statusStyleMap: Record<
     className: "bg-zinc-500/10 text-zinc-700 border-zinc-500/30",
   },
 };
+
+type RequestFilterStatus =
+  | "all"
+  | "requested"
+  | "accepted"
+  | "in-progress"
+  | "completed"
+  | 'rejected'
+  | 'canceled';
+
+const STATUS_TABS: Array<{ key: RequestFilterStatus; label: string }> = [
+  { key: "all", label: "All" },
+  { key: "requested", label: "Requested" },
+  { key: "accepted", label: "Accepted" },
+  { key: "in-progress", label: "In Progress" },
+  { key: "completed", label: "Completed" },
+  { key: "rejected", label: "Rejected" },
+  { key: "canceled", label: "Cancelled" },
+];
+
 export interface BookingStatusUpdatePayload {
   status: BookingStatus;
   technicianEmail?: string;
@@ -66,33 +82,101 @@ export interface BookingStatusUpdatePayload {
 interface TechnicianRequestsClientProps {
   initialBookings?: RepairRequestBooking[];
   initialTechnicianEmail?: string;
+  initialStatus?: string;
+  initialSearch?: string;
 }
 
 export default function TechnicianRequestsClient({
   initialBookings = [],
   initialTechnicianEmail = "",
+  initialStatus = "all",
+  initialSearch = "",
 }: TechnicianRequestsClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
+
   const technicianEmail = (session?.user?.email || initialTechnicianEmail || "")
     .trim()
     .toLowerCase();
 
+  const normalizedStatus: RequestFilterStatus = STATUS_TABS.some(
+    (t) => t.key === (initialStatus || "all").toLowerCase()
+  )
+    ? ((initialStatus || "all").toLowerCase() as RequestFilterStatus)
+    : "all";
+
   const [bookings, setBookings] =
     useState<RepairRequestBooking[]>(initialBookings);
+  const [selectedStatus, setSelectedStatus] =
+    useState<RequestFilterStatus>(normalizedStatus);
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearch);
   const [submittingId, setSubmittingId] = useState<string | null>(null);
 
   const [rejectTarget, setRejectTarget] = useState<RepairRequestBooking | null>(
-    null,
+    null
   );
   const [completeTarget, setCompleteTarget] =
     useState<RepairRequestBooking | null>(null);
   const [finalAmountInput, setFinalAmountInput] = useState<string>("");
 
+  const [prevInitialBookings, setPrevInitialBookings] =
+    useState<RepairRequestBooking[]>(initialBookings);
+  const [prevSyncKey, setPrevSyncKey] = useState<string>(
+    `${normalizedStatus}::${initialSearch}`
+  );
+
+  if (initialBookings !== prevInitialBookings) {
+    setPrevInitialBookings(initialBookings);
+    setBookings(initialBookings);
+  }
+
+  const currentSyncKey = `${normalizedStatus}::${initialSearch}`;
+  if (currentSyncKey !== prevSyncKey) {
+    setPrevSyncKey(currentSyncKey);
+    setSelectedStatus(normalizedStatus);
+    setSearchTerm(initialSearch);
+  }
+
+  const syncServerQuery = (nextStatus: RequestFilterStatus, nextSearch: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (nextStatus === "all") {
+      params.delete("status");
+    } else {
+      params.set("status", nextStatus);
+    }
+
+    const trimmedSearch = nextSearch.trim();
+    if (trimmedSearch) {
+      params.set("search", trimmedSearch);
+    } else {
+      params.delete("search");
+    }
+
+    const qs = params.toString();
+    router.push(qs ? `?${qs}` : "?", { scroll: false });
+  };
+
+  const handleStatusSelect = (nextStatus: RequestFilterStatus) => {
+    setSelectedStatus(nextStatus);
+    syncServerQuery(nextStatus, searchTerm);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    syncServerQuery(selectedStatus, searchTerm);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    syncServerQuery(selectedStatus, "");
+  };
+
   const updateBookingStatus = async (
     bookingId: string,
     nextStatus: BookingStatus,
-    finalAmount?: number,
+    finalAmount?: number
   ) => {
     try {
       setSubmittingId(bookingId);
@@ -121,8 +205,8 @@ export default function TechnicianRequestsClient({
                       ? finalAmount
                       : b.finalAmount,
               }
-            : b,
-        ),
+            : b
+        )
       );
 
       router.refresh();
@@ -174,11 +258,11 @@ export default function TechnicianRequestsClient({
     const ok = await updateBookingStatus(
       completeTarget._id,
       "completed",
-      numericAmount,
+      numericAmount
     );
     if (ok) {
       toast.success(
-        `Job marked completed with final amount $${numericAmount.toFixed(2)}`,
+        `Job marked completed with final amount $${numericAmount.toFixed(2)}`
       );
       setCompleteTarget(null);
       setFinalAmountInput("");
@@ -217,7 +301,7 @@ export default function TechnicianRequestsClient({
 
   const renderActionButtons = (
     booking: RepairRequestBooking,
-    fullWidthMobile = false,
+    fullWidthMobile = false
   ) => {
     const isRowBusy = submittingId === booking._id;
 
@@ -304,12 +388,62 @@ export default function TechnicianRequestsClient({
     <div className="space-y-4 sm:space-y-6 px-1 sm:px-0">
       <div>
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-          Manage Repair Requests
+          Manage Repair Requests ({bookings.length})
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-          Review repair requests sent to your services, update progress step by
-          step, and set final charges upon completion.
+          Server-filtered and searched repair requests sent to your services.
         </p>
+      </div>
+
+      {/* Server-side Filter & Search Controls */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1">
+          {STATUS_TABS.map((tab) => (
+            <Button
+              key={tab.key}
+              type="button"
+              size="sm"
+              variant={selectedStatus === tab.key ? "default" : "outline"}
+              onClick={() => handleStatusSelect(tab.key)}
+              className="rounded-xl cursor-pointer shrink-0 text-xs sm:text-sm"
+            >
+              {tab.label}
+            </Button>
+          ))}
+        </div>
+
+        <form
+          onSubmit={handleSearchSubmit}
+          className="flex items-center gap-2 w-full md:w-auto"
+        >
+          <div className="relative flex-1 md:w-72">
+            <Search className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search service, customer, phone..."
+              className="pl-9 pr-8 rounded-xl text-xs sm:text-sm"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                aria-label="Clear search"
+                className="text-muted-foreground hover:text-foreground absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          <Button
+            type="submit"
+            size="sm"
+            className="rounded-xl cursor-pointer shrink-0"
+          >
+            Search
+          </Button>
+        </form>
       </div>
 
       <Card className="rounded-2xl border-border/70">
@@ -320,8 +454,23 @@ export default function TechnicianRequestsClient({
                 No repair requests found
               </p>
               <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                No customer has requested your services yet.
+                No requests match your current server filter or search query.
               </p>
+              {(selectedStatus !== "all" || searchTerm.trim()) && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 rounded-xl cursor-pointer"
+                  onClick={() => {
+                    setSelectedStatus("all");
+                    setSearchTerm("");
+                    syncServerQuery("all", "");
+                  }}
+                >
+                  Reset Filters
+                </Button>
+              )}
             </div>
           ) : (
             <>
@@ -341,13 +490,13 @@ export default function TechnicianRequestsClient({
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <h3 className="font-semibold text-sm text-foreground truncate">
+                            <h3 className="font-semibold text-sm text-foreground break-words">
                               {booking.serviceTitle}
                             </h3>
-                            <p className="text-xs font-medium text-foreground/85 truncate mt-0.5">
+                            <p className="text-xs font-medium text-foreground/85 break-words mt-0.5">
                               {booking.customerName}
                             </p>
-                            <p className="text-[11px] text-muted-foreground truncate">
+                            <p className="text-[11px] text-muted-foreground break-all">
                               {booking.customerEmail}
                             </p>
                           </div>
@@ -356,7 +505,7 @@ export default function TechnicianRequestsClient({
                           </div>
                         </div>
 
-                        <p className="text-xs text-muted-foreground line-clamp-2 flex items-start gap-1.5">
+                        <p className="text-xs text-muted-foreground flex items-start gap-1.5 break-words">
                           <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
                           <span>{booking.problemDescription}</span>
                         </p>
@@ -364,13 +513,13 @@ export default function TechnicianRequestsClient({
                         <div className="space-y-1.5 text-xs text-foreground/85 border-t border-border/60 pt-2.5">
                           <div className="flex items-center gap-1.5">
                             <Phone className="h-3.5 w-3.5 text-primary shrink-0" />
-                            <span className="truncate">
+                            <span className="break-words">
                               {booking.customerPhone}
                             </span>
                           </div>
                           <div className="flex items-start gap-1.5">
                             <MapPin className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                            <span className="line-clamp-2">
+                            <span className="break-words">
                               {booking.address}
                             </span>
                           </div>
@@ -419,7 +568,7 @@ export default function TechnicianRequestsClient({
                       const displayAmount =
                         booking.status === "completed"
                           ? Number(
-                              booking.finalAmount ?? booking.basePrice ?? 0,
+                              booking.finalAmount ?? booking.basePrice ?? 0
                             )
                           : Number(booking.basePrice ?? 0);
 
@@ -432,7 +581,7 @@ export default function TechnicianRequestsClient({
                             <div className="font-semibold text-foreground">
                               {booking.customerName}
                             </div>
-                            <div className="text-xs text-muted-foreground truncate max-w-[190px]">
+                            <div className="text-xs text-muted-foreground break-all max-w-[190px]">
                               {booking.customerEmail}
                             </div>
                             <div className="mt-1 flex items-center gap-1.5 text-xs text-foreground/80">
@@ -445,7 +594,7 @@ export default function TechnicianRequestsClient({
                             <div className="font-semibold text-foreground">
                               {booking.serviceTitle}
                             </div>
-                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2 flex items-start gap-1">
+                            <p className="mt-1 text-xs text-muted-foreground flex items-start gap-1">
                               <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
                               <span>{booking.problemDescription}</span>
                             </p>

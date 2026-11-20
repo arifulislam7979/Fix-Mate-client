@@ -203,7 +203,7 @@ export default function ServicesManage({
                             size="icon"
                             disabled={isProcessing}
                             onClick={() => openDeleteModal(service._id)}
-                            className="h-8 w-8 text-destructive hover:bg-destructive/10 rounded-lg"
+                            className="h-8 w-8 text-destructive hover:bg-destructive/10 rounded-lg hover:cursor-pointer hover:text-red-500"
                             title="Delete Service"
                           >
                             {isProcessing ? (

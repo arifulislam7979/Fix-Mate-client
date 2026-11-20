@@ -8,7 +8,13 @@ import { technicianBookingData } from "@/lib/actions/bookings";
 
 export const instant = false;
 
-async function TechnicianRequests() {
+interface RequestsPageProps {
+  searchParams?:
+    | Promise<{ status?: string; search?: string }>
+    | { status?: string; search?: string };
+}
+
+async function TechnicianRequests({ searchParams }: RequestsPageProps) {
   const session = await getSession();
 
   const technicianEmail = session?.user?.email?.trim().toLowerCase();
@@ -17,10 +23,17 @@ async function TechnicianRequests() {
     redirect("/sign-in");
   }
 
+  const resolvedParams = await Promise.resolve(searchParams);
+  const initialStatus = (resolvedParams?.status || "all").toLowerCase();
+  const initialSearch = resolvedParams?.search || "";
+
   let bookings: RepairRequestBooking[] = [];
 
   try {
-    const data = await technicianBookingData(technicianEmail);
+    const data = await technicianBookingData(technicianEmail, {
+      status: initialStatus,
+      search: initialSearch,
+    });
     bookings = Array.isArray(data)
       ? data
       : Array.isArray(data?.bookings)
@@ -36,6 +49,8 @@ async function TechnicianRequests() {
     <TechnicianRequestsClient
       initialBookings={bookings}
       initialTechnicianEmail={technicianEmail}
+      initialStatus={initialStatus}
+      initialSearch={initialSearch}
     />
   );
 }
@@ -49,10 +64,10 @@ function RequestsFallback() {
   );
 }
 
-const RequestsPage = () => {
+const RequestsPage = (props: RequestsPageProps) => {
   return (
     <Suspense fallback={<RequestsFallback />}>
-      <TechnicianRequests />
+      <TechnicianRequests searchParams={props.searchParams} />
     </Suspense>
   );
 };

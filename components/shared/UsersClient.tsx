@@ -201,7 +201,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                                 setSelectedUserId(userId);
                                 setDeleteModalOpen(true);
                               }}
-                              className="h-8 w-8 text-destructive hover:bg-destructive/10 rounded-lg"
+                              className="h-8 w-8 text-destructive hover:bg-destructive/10 rounded-lg hover:cursor-pointer hover:text-red-500"
                               title="Delete / Suspend User"
                             >
                               {isProcessing ? (
