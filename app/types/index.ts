@@ -111,3 +111,11 @@ export interface PaymentRecord {
   paymentStatus: "paid";
   paidAt: string;
 }
+
+export interface UpdateProfilePayload {
+  name: string;
+  image?: string;
+  phone?: string;
+  area?: string;
+  bio?: string;
+}

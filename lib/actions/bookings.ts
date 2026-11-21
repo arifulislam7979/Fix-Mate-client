@@ -1,6 +1,6 @@
 "use server";
 
-import { Bookings, RepairRequestBooking } from "@/app/types";
+import { Bookings, } from "@/app/types";
 import { BookingStatusUpdatePayload } from "@/components/shared/TechnicianRequestsClient";
 import { notFound } from "next/navigation";
 
@@ -18,11 +18,11 @@ export const bookingsData = async (bookingData: Bookings) => {
   return res.json();
 };
 
-
 export interface GetCustomerBookingsParams {
-  status?: string;
-  search?: string;
+  activeStatus?: string;
+  activeSearch?: string;
 }
+
 export const getCustomerBookings = async (
   email: string,
   params: GetCustomerBookingsParams = {},
@@ -30,12 +30,16 @@ export const getCustomerBookings = async (
   const url = new URL(`${BASE_URL}/bookings`);
   url.searchParams.set("customerEmail", email);
 
-  if (params.status && params.status.trim() && params.status.toLowerCase() !== "all") {
-    url.searchParams.set("status", params.status.trim().toLowerCase());
+  if (
+    params.activeStatus &&
+    params.activeStatus.trim() &&
+    params.activeStatus.toLowerCase() !== "all"
+  ) {
+    url.searchParams.set("status", params.activeStatus.trim().toLowerCase());
   }
 
-  if (params.search && params.search.trim()) {
-    url.searchParams.set("search", params.search.trim());
+  if (params.activeSearch && params.activeSearch.trim()) {
+    url.searchParams.set("search", params.activeSearch.trim());
   }
 
   const res = await fetch(url.toString(), { cache: "no-store" });
@@ -45,7 +49,6 @@ export const getCustomerBookings = async (
 
   return res.json();
 };
-
 
 export const cancelBooking = async (id: string) => {
   const res = await fetch(`${BASE_URL}/bookings/${id}/cancel`, {

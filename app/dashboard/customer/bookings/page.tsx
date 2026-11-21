@@ -15,7 +15,9 @@ interface CustomerBookingsPageProps {
   }>;
 }
 
-const CustomerBookings = async ({ searchParams }: CustomerBookingsPageProps) => {
+const CustomerBookings = async ({
+  searchParams,
+}: CustomerBookingsPageProps) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -29,8 +31,8 @@ const CustomerBookings = async ({ searchParams }: CustomerBookingsPageProps) => 
   const activeSearch = resolvedParams?.search || "";
 
   const bookings = await getCustomerBookings(session.user.email, {
-    status: activeStatus,
-    search: activeSearch,
+    activeStatus,
+    activeSearch,
   });
 
   return (
