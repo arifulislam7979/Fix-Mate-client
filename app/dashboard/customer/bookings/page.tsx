@@ -8,7 +8,14 @@ import { Wrench } from "lucide-react";
 import CustomerBookingsList from "@/components/shared/CustomerBookingsList";
 import { getCustomerBookings } from "@/lib/actions/bookings";
 
-const CustomerBookings = async () => {
+interface CustomerBookingsPageProps {
+  searchParams: Promise<{
+    status?: string;
+    search?: string;
+  }>;
+}
+
+const CustomerBookings = async ({ searchParams }: CustomerBookingsPageProps) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -17,7 +24,15 @@ const CustomerBookings = async () => {
     redirect("/sign-in?redirectTo=/dashboard/customer/bookings");
   }
 
-  const bookings = await getCustomerBookings(session.user.email);
+  const resolvedParams = await searchParams;
+  const activeStatus = resolvedParams?.status || "all";
+  const activeSearch = resolvedParams?.search || "";
+
+  const bookings = await getCustomerBookings(session.user.email, {
+    status: activeStatus,
+    search: activeSearch,
+  });
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -40,6 +55,8 @@ const CustomerBookings = async () => {
       <CustomerBookingsList
         initialBookings={bookings}
         customerEmail={session.user.email}
+        initialStatus={activeStatus}
+        initialSearch={activeSearch}
       />
     </div>
   );

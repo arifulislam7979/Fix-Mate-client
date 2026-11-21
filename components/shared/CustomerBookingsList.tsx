@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Bookings } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -15,11 +15,12 @@ import {
   CheckCircle2,
   PackageOpen,
   Trash2,
+  Search,
+  RotateCcw,
 } from "lucide-react";
 import Image from "next/image";
 import { cancelBooking } from "@/lib/actions/bookings";
 import { createPayment } from "@/lib/actions/payment";
-
 
 const STATUS_BADGE_STYLES: Record<string, string> = {
   requested: "bg-blue-500/15 text-blue-600 border-blue-500/30",
@@ -30,17 +31,42 @@ const STATUS_BADGE_STYLES: Record<string, string> = {
   cancelled: "bg-slate-500/15 text-slate-600 border-slate-500/30",
 };
 
+const FILTER_OPTIONS = [
+  { label: "All", value: "all" },
+  { label: "Requested", value: "requested" },
+  { label: "Accepted", value: "accepted" },
+  { label: "In Progress", value: "in-progress" },
+  { label: "Completed", value: "completed" },
+  { label: "Cancelled", value: "cancelled" },
+  { label: "Rejected", value: "rejected" },
+];
+
 interface CustomerBookingsListProps {
   initialBookings: Bookings[];
   customerEmail: string;
+  initialStatus?: string;
+  initialSearch?: string;
 }
 
 export default function CustomerBookingsList({
   initialBookings,
   customerEmail,
+  initialStatus = "all",
+  initialSearch = "",
 }: CustomerBookingsListProps) {
   const router = useRouter();
-  const [bookings, setBookings] = useState<Bookings[]>(initialBookings);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
+  const [statusOverrides, setStatusOverrides] = useState<
+    Record<string, Bookings["status"]>
+  >({});
+  const [selectedStatus, setSelectedStatus] = useState<string>(
+    initialStatus.toLowerCase() || "all",
+  );
+  const [searchInput, setSearchInput] = useState<string>(initialSearch);
+
   const [payingId, setPayingId] = useState<string | null>(null);
   const [bookingToCancel, setBookingToCancel] = useState<Bookings | null>(null);
   const [cancelling, setCancelling] = useState(false);
@@ -60,6 +86,50 @@ export default function CustomerBookingsList({
     }
   });
 
+  const bookings = initialBookings.map((item) =>
+    item._id && statusOverrides[item._id]
+      ? { ...item, status: statusOverrides[item._id] }
+      : item,
+  );
+
+  const applyBackendFilters = (nextStatus: string, nextSearch: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (nextStatus && nextStatus.toLowerCase() !== "all") {
+      params.set("status", nextStatus.toLowerCase());
+    } else {
+      params.delete("status");
+    }
+
+    if (nextSearch.trim()) {
+      params.set("search", nextSearch.trim());
+    } else {
+      params.delete("search");
+    }
+
+    const queryString = params.toString();
+    startTransition(() => {
+      router.push(queryString ? `${pathname}?${queryString}` : pathname);
+      router.refresh();
+    });
+  };
+
+  const handleStatusChange = (statusValue: string) => {
+    setSelectedStatus(statusValue);
+    applyBackendFilters(statusValue, searchInput);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    applyBackendFilters(selectedStatus, searchInput);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedStatus("all");
+    setSearchInput("");
+    applyBackendFilters("all", "");
+  };
+
   const handleConfirmCancel = async () => {
     if (!bookingToCancel?._id) return;
 
@@ -69,15 +139,15 @@ export default function CustomerBookingsList({
 
       if (result?.success || result?.modifiedCount > 0 || result?._id) {
         toast.success("Booking request cancelled.");
-        setBookings((prev) =>
-          prev.map((item) =>
-            item._id === bookingToCancel._id
-              ? { ...item, status: "cancelled" as Bookings["status"] }
-              : item,
-          ),
-        );
+        const targetId = bookingToCancel._id;
+        setStatusOverrides((prev) => ({
+          ...prev,
+          [targetId]: "cancelled" as Bookings["status"],
+        }));
         setBookingToCancel(null);
-        router.refresh();
+        startTransition(() => {
+          router.refresh();
+        });
       } else {
         toast.error(result?.message || "Could not cancel this booking.");
       }
@@ -133,103 +203,324 @@ export default function CustomerBookingsList({
     (item) => !item._id || !hiddenIds.includes(item._id),
   );
 
-  if (visibleBookings.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/60 px-6 py-14 text-center">
-        <PackageOpen className="h-11 w-11 text-muted-foreground/70 mb-3" />
-        <h2 className="text-lg font-semibold">No bookings yet</h2>
-        <p className="mt-1 max-w-md text-sm text-muted-foreground">
-          You haven&apos;t requested any device or home appliance repair yet.
-          Explore approved services to get started.
-        </p>
-        <Link href="/services" className="mt-5">
-          <Button className="rounded-xl cursor-pointer">
-            Explore Repair Services
-          </Button>
-        </Link>
-      </div>
-    );
-  }
+  const hasActiveFilter =
+    selectedStatus !== "all" || searchInput.trim().length > 0;
 
   return (
     <>
-      {/* Desktop Table View */}
-      <div className="hidden md:block overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <th className="py-3.5 px-4">Service</th>
-                <th className="py-3.5 px-4">Technician</th>
-                <th className="py-3.5 px-4">Preferred Date</th>
-                <th className="py-3.5 px-4">Amount</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4">Payment</th>
-                <th className="py-3.5 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/70 text-sm">
-              {visibleBookings.map((booking) => {
-                const statusKey = (booking.status || "requested").toLowerCase();
-                const isPaid = booking.paymentStatus === "paid";
-                const canCancel = statusKey === "requested";
-                const canPay = statusKey === "completed" && !isPaid;
-                const canRemoveFromUi = statusKey === "cancelled";
-                const displayAmount =
-                  statusKey === "completed" && booking.finalAmount
-                    ? booking.finalAmount
-                    : booking.basePrice;
+      {/* Backend Filter Controls */}
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-2xs space-y-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          {/* Status Filter Buttons */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {FILTER_OPTIONS.map((option) => {
+              const isActive = selectedStatus === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => handleStatusChange(option.value)}
+                  disabled={isPending}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-2xs"
+                      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
 
-                return (
-                  <tr
-                    key={booking._id}
-                    className="hover:bg-muted/25 transition-colors"
-                  >
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="relative h-11 w-11 rounded-xl overflow-hidden border border-border shrink-0">
-                          <Image
-                            src={booking.serviceImage || "/placeholder.png"}
-                            alt={booking.serviceTitle}
-                            fill
-                            sizes="44px"
-                            className="object-cover"
-                          />
-                        </div>
-                        <div>
-                          <p className="font-semibold line-clamp-1">
-                            {booking.serviceTitle}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {booking.category}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
+          {/* Search Input + Reset */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className="flex items-center gap-2 w-full lg:w-auto"
+          >
+            <div className="relative flex-1 lg:w-64">
+              <Search className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Search service, address..."
+                className="w-full h-9 rounded-xl border border-border bg-background pl-9 pr-3 text-xs outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
 
-                    <td className="py-3.5 px-4">
-                      <p className="font-medium">{booking.technicianName}</p>
-                    </td>
+            <Button
+              type="submit"
+              size="sm"
+              disabled={isPending}
+              className="h-9 rounded-xl cursor-pointer"
+            >
+              {isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                "Search"
+              )}
+            </Button>
 
-                    <td className="py-3.5 px-4 text-muted-foreground">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
+            {hasActiveFilter && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleResetFilters}
+                disabled={isPending}
+                className="h-9 rounded-xl cursor-pointer"
+              >
+                <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                Reset
+              </Button>
+            )}
+          </form>
+        </div>
+      </div>
+
+      {visibleBookings.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/60 px-6 py-14 text-center">
+          <PackageOpen className="h-11 w-11 text-muted-foreground/70 mb-3" />
+          <h2 className="text-lg font-semibold">
+            {hasActiveFilter ? "No matching bookings found" : "No bookings yet"}
+          </h2>
+          <p className="mt-1 max-w-md text-sm text-muted-foreground">
+            {hasActiveFilter
+              ? "Try changing or resetting your status or search filter."
+              : "You haven't requested any device or home appliance repair yet. Explore approved services to get started."}
+          </p>
+          {hasActiveFilter ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleResetFilters}
+              className="mt-5 rounded-xl cursor-pointer"
+            >
+              Reset Filters
+            </Button>
+          ) : (
+            <Link href="/services" className="mt-5">
+              <Button className="rounded-xl cursor-pointer">
+                Explore Repair Services
+              </Button>
+            </Link>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <th className="py-3.5 px-4">Service</th>
+                    <th className="py-3.5 px-4">Technician</th>
+                    <th className="py-3.5 px-4">Preferred Date</th>
+                    <th className="py-3.5 px-4">Amount</th>
+                    <th className="py-3.5 px-4">Status</th>
+                    <th className="py-3.5 px-4">Payment</th>
+                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/70 text-sm">
+                  {visibleBookings.map((booking) => {
+                    const statusKey = (
+                      booking.status || "requested"
+                    ).toLowerCase();
+                    const isPaid = booking.paymentStatus === "paid";
+                    const canCancel = statusKey === "requested";
+                    const canPay = statusKey === "completed" && !isPaid;
+                    const canRemoveFromUi = statusKey === "cancelled";
+                    const displayAmount =
+                      statusKey === "completed" && booking.finalAmount
+                        ? booking.finalAmount
+                        : booking.basePrice;
+
+                    return (
+                      <tr
+                        key={booking._id}
+                        className="hover:bg-muted/25 transition-colors"
+                      >
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-11 w-11 rounded-xl overflow-hidden border border-border shrink-0">
+                              <Image
+                                src={booking.serviceImage || "/placeholder.png"}
+                                alt={booking.serviceTitle}
+                                fill
+                                sizes="44px"
+                                className="object-cover"
+                              />
+                            </div>
+                            <div>
+                              <p className="font-semibold line-clamp-1">
+                                {booking.serviceTitle}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {booking.category}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="py-3.5 px-4">
+                          <p className="font-medium">{booking.technicianName}</p>
+                        </td>
+
+                        <td className="py-3.5 px-4 text-muted-foreground">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Calendar className="h-3.5 w-3.5" />
+                            {booking.preferredDate
+                              ? new Date(
+                                  booking.preferredDate,
+                                ).toLocaleDateString()
+                              : "N/A"}
+                          </span>
+                        </td>
+
+                        <td className="py-3.5 px-4 font-semibold">
+                          ${Number(displayAmount || 0).toFixed(2)}
+                          {statusKey !== "completed" && (
+                            <span className="block text-[11px] font-normal text-muted-foreground">
+                              Base price
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${
+                              STATUS_BADGE_STYLES[statusKey] ||
+                              "bg-muted text-foreground border-border"
+                            }`}
+                          >
+                            {statusKey.replace("-", " ")}
+                          </span>
+                        </td>
+
+                        <td className="py-3.5 px-4">
+                          {isPaid ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-semibold">
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              Paid
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-amber-500/15 text-amber-700 border border-amber-500/30 px-2.5 py-0.5 text-xs font-semibold">
+                              Unpaid
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="inline-flex items-center justify-end gap-2">
+                            {canPay && (
+                              <Button
+                                size="sm"
+                                onClick={() => handlePayNow(booking)}
+                                disabled={payingId === booking._id}
+                                className="rounded-lg cursor-pointer"
+                              >
+                                {payingId === booking._id ? (
+                                  <>
+                                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                    Redirecting...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CreditCard className="mr-1.5 h-3.5 w-3.5" />
+                                    Pay Now
+                                  </>
+                                )}
+                              </Button>
+                            )}
+
+                            {canCancel && (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => setBookingToCancel(booking)}
+                                className="rounded-lg cursor-pointer hover:text-red-500"
+                              >
+                                <XCircle className="mr-1.5 h-3.5 w-3.5" />
+                                Cancel
+                              </Button>
+                            )}
+
+                            {canRemoveFromUi && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setBookingToRemoveFromUi(booking)}
+                                className="rounded-lg text-muted-foreground hover:text-rose-600 cursor-pointer"
+                              >
+                                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                                Remove
+                              </Button>
+                            )}
+
+                            {!canPay && !canCancel && !canRemoveFromUi && (
+                              <span className="text-xs text-muted-foreground">
+                                —
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {visibleBookings.map((booking) => {
+              const statusKey = (booking.status || "requested").toLowerCase();
+              const isPaid = booking.paymentStatus === "paid";
+              const canCancel = statusKey === "requested";
+              const canPay = statusKey === "completed" && !isPaid;
+              const canRemoveFromUi = statusKey === "cancelled";
+              const displayAmount =
+                statusKey === "completed" && booking.finalAmount
+                  ? booking.finalAmount
+                  : booking.basePrice;
+
+              return (
+                <div
+                  key={booking._id}
+                  className="rounded-2xl border border-border bg-card p-4 shadow-xs space-y-3"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative h-14 w-14 rounded-xl overflow-hidden border border-border shrink-0">
+                      <Image
+                        src={booking.serviceImage || "/placeholder.png"}
+                        alt={booking.serviceTitle}
+                        fill
+                        sizes="56px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold truncate">
+                        {booking.serviceTitle}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        Tech: {booking.technicianName}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Date:{" "}
                         {booking.preferredDate
                           ? new Date(booking.preferredDate).toLocaleDateString()
                           : "N/A"}
-                      </span>
-                    </td>
+                      </p>
+                    </div>
+                  </div>
 
-                    <td className="py-3.5 px-4 font-semibold">
-                      ${Number(displayAmount || 0).toFixed(2)}
-                      {statusKey !== "completed" && (
-                        <span className="block text-[11px] font-normal text-muted-foreground">
-                          Base price
-                        </span>
-                      )}
-                    </td>
-
-                    <td className="py-3.5 px-4">
+                  <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                    <div className="flex items-center gap-2">
                       <span
                         className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${
                           STATUS_BADGE_STYLES[statusKey] ||
@@ -238,12 +529,8 @@ export default function CustomerBookingsList({
                       >
                         {statusKey.replace("-", " ")}
                       </span>
-                    </td>
-
-                    <td className="py-3.5 px-4">
                       {isPaid ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-semibold">
-                          <CheckCircle2 className="h-3.5 w-3.5" />
                           Paid
                         </span>
                       ) : (
@@ -251,190 +538,65 @@ export default function CustomerBookingsList({
                           Unpaid
                         </span>
                       )}
-                    </td>
+                    </div>
 
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="inline-flex items-center justify-end gap-2">
-                        {canPay && (
-                          <Button
-                            size="sm"
-                            onClick={() => handlePayNow(booking)}
-                            disabled={payingId === booking._id}
-                            className="rounded-lg cursor-pointer"
-                          >
-                            {payingId === booking._id ? (
-                              <>
-                                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                                Redirecting...
-                              </>
-                            ) : (
-                              <>
-                                <CreditCard className="mr-1.5 h-3.5 w-3.5" />
-                                Pay Now
-                              </>
-                            )}
-                          </Button>
-                        )}
+                    <p className="font-bold text-sm">
+                      ${Number(displayAmount || 0).toFixed(2)}
+                    </p>
+                  </div>
 
-                        {canCancel && (
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => setBookingToCancel(booking)}
-                            className="rounded-lg cursor-pointer hover:text-red-500"
-                          >
-                            <XCircle className="mr-1.5 h-3.5 w-3.5" />
-                            Cancel
-                          </Button>
-                        )}
-
-                        {canRemoveFromUi && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setBookingToRemoveFromUi(booking)}
-                            className="rounded-lg text-muted-foreground hover:text-rose-600 cursor-pointer"
-                          >
-                            <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                            Remove
-                          </Button>
-                        )}
-
-                        {!canPay && !canCancel && !canRemoveFromUi && (
-                          <span className="text-xs text-muted-foreground">
-                            —
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Mobile Card View */}
-      <div className="grid grid-cols-1 gap-4 md:hidden">
-        {visibleBookings.map((booking) => {
-          const statusKey = (booking.status || "requested").toLowerCase();
-          const isPaid = booking.paymentStatus === "paid";
-          const canCancel = statusKey === "requested";
-          const canPay = statusKey === "completed" && !isPaid;
-          const canRemoveFromUi = statusKey === "cancelled";
-          const displayAmount =
-            statusKey === "completed" && booking.finalAmount
-              ? booking.finalAmount
-              : booking.basePrice;
-
-          return (
-            <div
-              key={booking._id}
-              className="rounded-2xl border border-border bg-card p-4 shadow-xs space-y-3"
-            >
-              <div className="flex items-start gap-3">
-                <div className="relative h-14 w-14 rounded-xl overflow-hidden border border-border shrink-0">
-                  <Image
-                    src={booking.serviceImage || "/placeholder.png"}
-                    alt={booking.serviceTitle}
-                    fill
-                    sizes="56px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-semibold truncate">
-                    {booking.serviceTitle}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    Tech: {booking.technicianName}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Date:{" "}
-                    {booking.preferredDate
-                      ? new Date(booking.preferredDate).toLocaleDateString()
-                      : "N/A"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-border/60">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${
-                      STATUS_BADGE_STYLES[statusKey] ||
-                      "bg-muted text-foreground border-border"
-                    }`}
-                  >
-                    {statusKey.replace("-", " ")}
-                  </span>
-                  {isPaid ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-semibold">
-                      Paid
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center rounded-full bg-amber-500/15 text-amber-700 border border-amber-500/30 px-2.5 py-0.5 text-xs font-semibold">
-                      Unpaid
-                    </span>
-                  )}
-                </div>
-
-                <p className="font-bold text-sm">
-                  ${Number(displayAmount || 0).toFixed(2)}
-                </p>
-              </div>
-
-              {(canPay || canCancel || canRemoveFromUi) && (
-                <div className="flex items-center justify-end gap-2 pt-2">
-                  {canPay && (
-                    <Button
-                      size="sm"
-                      onClick={() => handlePayNow(booking)}
-                      disabled={payingId === booking._id}
-                      className="rounded-lg cursor-pointer"
-                    >
-                      {payingId === booking._id ? (
-                        <>
-                          <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                          Redirecting...
-                        </>
-                      ) : (
-                        <>
-                          <CreditCard className="mr-1.5 h-3.5 w-3.5" />
-                          Pay Now
-                        </>
+                  {(canPay || canCancel || canRemoveFromUi) && (
+                    <div className="flex items-center justify-end gap-2 pt-2">
+                      {canPay && (
+                        <Button
+                          size="sm"
+                          onClick={() => handlePayNow(booking)}
+                          disabled={payingId === booking._id}
+                          className="rounded-lg cursor-pointer"
+                        >
+                          {payingId === booking._id ? (
+                            <>
+                              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                              Redirecting...
+                            </>
+                          ) : (
+                            <>
+                              <CreditCard className="mr-1.5 h-3.5 w-3.5" />
+                              Pay Now
+                            </>
+                          )}
+                        </Button>
                       )}
-                    </Button>
-                  )}
-                  {canCancel && (
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => setBookingToCancel(booking)}
-                      className="rounded-lg cursor-pointer"
-                    >
-                      <XCircle className="mr-1.5 h-3.5 w-3.5" />
-                      Cancel
-                    </Button>
-                  )}
-                  {canRemoveFromUi && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setBookingToRemoveFromUi(booking)}
-                      className="rounded-lg text-muted-foreground hover:text-rose-600 cursor-pointer"
-                    >
-                      <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                      Remove
-                    </Button>
+                      {canCancel && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => setBookingToCancel(booking)}
+                          className="rounded-lg cursor-pointer"
+                        >
+                          <XCircle className="mr-1.5 h-3.5 w-3.5" />
+                          Cancel
+                        </Button>
+                      )}
+                      {canRemoveFromUi && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setBookingToRemoveFromUi(booking)}
+                          className="rounded-lg text-muted-foreground hover:text-rose-600 cursor-pointer"
+                        >
+                          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                          Remove
+                        </Button>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {/* Cancel Confirmation Modal */}
       {bookingToCancel && (

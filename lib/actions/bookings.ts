@@ -17,17 +17,35 @@ export const bookingsData = async (bookingData: Bookings) => {
   });
   return res.json();
 };
-export const getCustomerBookings = async (email: string) => {
-  const res = await fetch(
-    `${BASE_URL}/bookings?customerEmail=${encodeURIComponent(email)}`,
-    { cache: "no-store" },
-  );
+
+
+export interface GetCustomerBookingsParams {
+  status?: string;
+  search?: string;
+}
+export const getCustomerBookings = async (
+  email: string,
+  params: GetCustomerBookingsParams = {},
+) => {
+  const url = new URL(`${BASE_URL}/bookings`);
+  url.searchParams.set("customerEmail", email);
+
+  if (params.status && params.status.trim() && params.status.toLowerCase() !== "all") {
+    url.searchParams.set("status", params.status.trim().toLowerCase());
+  }
+
+  if (params.search && params.search.trim()) {
+    url.searchParams.set("search", params.search.trim());
+  }
+
+  const res = await fetch(url.toString(), { cache: "no-store" });
   if (!res.ok) {
     notFound();
   }
 
   return res.json();
 };
+
 
 export const cancelBooking = async (id: string) => {
   const res = await fetch(`${BASE_URL}/bookings/${id}/cancel`, {
