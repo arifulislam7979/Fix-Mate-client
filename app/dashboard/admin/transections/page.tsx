@@ -1,10 +1,11 @@
 import React from "react";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import TransactionsView, {
   AdminTransactionItem,
 } from "@/components/shared/TransactionsView";
+import { allTransection } from "@/lib/actions/payment";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -66,17 +67,10 @@ export default async function TransectionsPage() {
   let rawList: RawPaymentDoc[] = [];
 
   try {
-    const res = await fetch(`${BASE_URL}/payments`, { cache: "no-store" });
-    if (res.ok) {
-      const data: RawPaymentDoc[] | PaymentsResponseWrapper = await res.json();
-      if (Array.isArray(data)) {
-        rawList = data;
-      } else {
-        rawList = data.payments || data.data || [];
-      }
-    }
+    rawList = await allTransection();
   } catch (error) {
     console.error("Failed to load all transactions:", error);
+    rawList = [];
   }
 
   const transactions: AdminTransactionItem[] = rawList.map((doc, index) => ({

@@ -10,9 +10,9 @@ export const createPayment = async (booking: Bookings) => {
   const res = await fetch(`${BASE_URL}/create-checkout-session`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify( booking ),
+    body: JSON.stringify(booking),
   });
-  return res.json()
+  return res.json();
 };
 
 export const getCustomerPayments = async (
@@ -28,4 +28,12 @@ export const getCustomerPayments = async (
 
   const data = await res.json();
   return Array.isArray(data) ? data : data?.payments || [];
+};
+
+export const allTransection = async () => {
+  const res = await fetch(`${BASE_URL}/payments`, { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch payments: ${res.status}`);
+  }
+  return res.json()
 };
