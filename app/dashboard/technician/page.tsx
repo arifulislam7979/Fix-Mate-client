@@ -1,184 +1,224 @@
 import React from "react";
-import Link from "next/link";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { getUserByEmail } from "@/lib/api/users";
 import {
-  Wrench,
-  CheckCircle2,
-  Clock,
-  Wallet,
-  ArrowUpRight,
-  Calendar,
-  MapPin,
-  UserCheck,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+  BookingRecord,
+  PaymentRecord,
+  TechnicianBookingItem,
+  Users,
+} from "@/app/types";
+import TechnicianPage from "@/components/shared/TechnicianPage";
 
-interface TechnicianOverviewProps {
-  technicianName?: string;
-  stats?: {
-    activeJobs: number;
-    completedJobs: number;
-    pendingJobs: number;
-    totalEarnings: number;
-  };
-  recentBookings?: {
-    id: string;
-    serviceTitle: string;
-    customerName: string;
-    area: string;
-    date: string;
-    status: "Pending" | "In Progress" | "Completed" | string;
-    amount: number;
-  }[];
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.BACKEND_URL ||
+  "https://fix-mate-server.vercel.app";
+
+interface BookingsApiResponse {
+  bookings?: BookingRecord[];
+  data?: BookingRecord[];
 }
 
-const TechnicianPage = ({
-  technicianName = "Technician",
-  stats = {
-    activeJobs: 0,
-    completedJobs: 0,
-    pendingJobs: 0,
-    totalEarnings: 0,
-  },
-  recentBookings = [],
-}: TechnicianOverviewProps) => {
-  const kpiCards = [
-    {
-      title: "Active Jobs",
-      value: stats.activeJobs,
-      subtitle: "Currently in progress",
-      icon: Wrench,
-    },
-    {
-      title: "Completed Services",
-      value: stats.completedJobs,
-      subtitle: "Successfully finished",
-      icon: CheckCircle2,
-    },
-    {
-      title: "Pending Requests",
-      value: stats.pendingJobs,
-      subtitle: "Awaiting action",
-      icon: Clock,
-    },
-    {
-      title: "Total Earnings",
-      value: `$${stats.totalEarnings.toLocaleString()}`,
-      subtitle: "From completed jobs",
-      icon: Wallet,
-    },
-  ];
+interface PaymentsApiResponse {
+  payments?: PaymentRecord[];
+  data?: PaymentRecord[];
+}
+
+interface BookingSchemaFields {
+  finalAmount?: number | string;
+  basePrice?: number | string;
+  amount?: number | string;
+  price?: number | string;
+  totalAmount?: number | string;
+  servicePrice?: number | string;
+  paymentStatus?: string;
+  address?: string;
+  preferredDate?: string;
+}
+
+function parseAmount(value: unknown): number {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : 0;
+  }
+  if (typeof value === "string") {
+    const cleaned = value.replace(/[^0-9.-]+/g, "");
+    const parsed = Number(cleaned);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+}
+
+function getBookingAmount(booking: BookingRecord): number {
+  const fields = booking as BookingRecord & BookingSchemaFields;
+  return parseAmount(
+    fields.finalAmount ??
+      fields.amount ??
+      fields.price ??
+      fields.basePrice ??
+      fields.totalAmount ??
+      fields.servicePrice ??
+      0,
+  );
+}
+
+export default async function TechnicianOverviewPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.email) {
+    redirect("/sign-in");
+  }
+
+  const sessionEmail = session.user.email.trim().toLowerCase();
+  const dbUser = (await getUserByEmail(sessionEmail)) as Users | null;
+
+  const paymentsUrl = new URL(`${BASE_URL}/payments`);
+  paymentsUrl.searchParams.set("technicianEmail", sessionEmail);
+
+  let allBookings: BookingRecord[] = [];
+  let technicianPayments: PaymentRecord[] = [];
+
+  try {
+    const [bookingsRes, paymentsRes] = await Promise.all([
+      fetch(`${BASE_URL}/bookings`, { cache: "no-store" }),
+      fetch(paymentsUrl.toString(), { cache: "no-store" }),
+    ]);
+
+    if (bookingsRes.ok) {
+      const bookingsData: BookingRecord[] | BookingsApiResponse =
+        await bookingsRes.json();
+      allBookings = Array.isArray(bookingsData)
+        ? bookingsData
+        : bookingsData.bookings || bookingsData.data || [];
+    }
+
+    if (paymentsRes.ok) {
+      const paymentsData: PaymentRecord[] | PaymentsApiResponse =
+        await paymentsRes.json();
+      technicianPayments = Array.isArray(paymentsData)
+        ? paymentsData
+        : paymentsData.payments || paymentsData.data || [];
+    }
+  } catch (error) {
+    console.error("Failed to fetch technician overview data:", error);
+  }
+
+  const assignedBookings = allBookings.filter((booking) => {
+    const techEmail = String(
+      booking.technicianEmail ||
+        booking.assignedTechnicianEmail ||
+        booking.providerEmail ||
+        "",
+    )
+      .trim()
+      .toLowerCase();
+    const techId = String(
+      booking.technicianId || booking.assignedTechnicianId || "",
+    );
+
+    return (
+      (techEmail !== "" && techEmail === sessionEmail) ||
+      (Boolean(dbUser?._id) && techId === String(dbUser?._id))
+    );
+  });
+
+  const activeJobs = assignedBookings.filter((booking) =>
+    ["in-progress", "in progress", "assigned", "accepted"].includes(
+      String(booking.status || "").toLowerCase(),
+    ),
+  ).length;
+
+  const completedList = assignedBookings.filter(
+    (booking) => String(booking.status || "").toLowerCase() === "completed",
+  );
+
+  const pendingJobs = assignedBookings.filter((booking) =>
+    ["pending", "requested"].includes(
+      String(booking.status || "").toLowerCase(),
+    ),
+  ).length;
+
+  const paidPayments = technicianPayments.filter((payment) => {
+    const state = String(payment.status || payment.paymentStatus || "")
+      .trim()
+      .toLowerCase();
+    return state === "paid";
+  });
+
+  const paymentsTotal = paidPayments.reduce(
+    (sum, payment) => sum + parseAmount(payment.amount),
+    0,
+  );
+
+  const bookingsPaidTotal = assignedBookings
+    .filter((booking) => {
+      const fields = booking as BookingRecord & BookingSchemaFields;
+      const statusLower = String(booking.status || "").trim().toLowerCase();
+      const paymentStatusLower = String(fields.paymentStatus || "")
+        .trim()
+        .toLowerCase();
+
+      return statusLower === "completed" && paymentStatusLower === "paid";
+    })
+    .reduce((sum, booking) => sum + getBookingAmount(booking), 0);
+
+  const totalEarnings = paymentsTotal > 0 ? paymentsTotal : bookingsPaidTotal;
+
+  const recentBookings: TechnicianBookingItem[] = assignedBookings
+    .slice(0, 5)
+    .map((booking, index) => {
+      const fields = booking as BookingRecord & BookingSchemaFields;
+      const bookingIdStr = String(booking._id || booking.id || "");
+
+      return {
+        id: bookingIdStr || `booking-${index}`,
+        serviceTitle:
+          booking.serviceTitle ||
+          booking.serviceName ||
+          booking.title ||
+          "Service Request",
+        customerName:
+          booking.customerName ||
+          booking.userName ||
+          booking.customerEmail ||
+          "Customer",
+        area:
+          fields.address ||
+          booking.area ||
+          booking.location ||
+          dbUser?.area ||
+          "Not specified",
+        date:
+          fields.preferredDate ||
+          booking.date ||
+          booking.scheduledDate ||
+          "N/A",
+        status: booking.status || "Pending",
+        amount: getBookingAmount(booking),
+      };
+    });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Technician Overview
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Welcome back, {technicianName}. Here is a summary of your assigned
-            jobs and earnings.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Link href="/dashboard/profile">
-            <Button variant="outline" className="rounded-xl cursor-pointer">
-              <UserCheck className="mr-2 h-4 w-4" />
-              My Profile
-            </Button>
-          </Link>
-          <Link href="/dashboard">
-            <Button className="rounded-xl cursor-pointer">
-              View All Jobs
-              <ArrowUpRight className="ml-1.5 h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* KPI Stat Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {kpiCards.map((card) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={card.title}
-              className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-muted-foreground">
-                  {card.title}
-                </span>
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold tracking-tight">
-                {card.value}
-              </div>
-              <p className="text-xs text-muted-foreground">{card.subtitle}</p>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Recent Assigned Jobs */}
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-border/70 pb-3">
-          <div>
-            <h2 className="text-base font-bold">Recent Assigned Jobs</h2>
-            <p className="text-xs text-muted-foreground">
-              Latest service requests assigned to your account
-            </p>
-          </div>
-        </div>
-
-        {recentBookings.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border p-8 text-center space-y-1">
-            <p className="text-sm font-medium">No assigned jobs yet</p>
-            <p className="text-xs text-muted-foreground">
-              New bookings assigned to you will appear here automatically.
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y divide-border/70">
-            {recentBookings.map((booking) => (
-              <div
-                key={booking.id}
-                className="py-3.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold">
-                    {booking.serviceTitle}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                    <span>Customer: {booking.customerName}</span>
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {booking.area}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {booking.date}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold">${booking.amount}</span>
-                  <span className="rounded-full border border-border bg-muted/60 px-2.5 py-1 text-xs font-medium">
-                    {booking.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    <TechnicianPage
+      technician={{
+        name: dbUser?.name || session.user.name || "Technician",
+        email: session.user.email,
+        phone: dbUser?.phone || "",
+        area: dbUser?.area || "",
+        role: dbUser?.role || "technician",
+        bio: dbUser?.bio || "",
+        image: dbUser?.image || session.user.image || "",
+      }}
+      stats={{
+        activeJobs,
+        completedJobs: completedList.length,
+        pendingJobs,
+        totalEarnings,
+      }}
+      recentBookings={recentBookings}
+    />
   );
-};
-
-export default TechnicianPage;
+}

@@ -109,6 +109,7 @@ export interface PaymentRecord {
   transactionId: string;
   stripeSessionId: string;
   paymentStatus: "paid";
+  status: BookingStatus;
   paidAt: string;
 }
 
@@ -118,4 +119,37 @@ export interface UpdateProfilePayload {
   phone?: string;
   area?: string;
   bio?: string;
+}
+
+ export interface BookingRecord {
+  _id?: string;
+  id?: string;
+  serviceTitle?: string;
+  serviceName?: string;
+  title?: string;
+  customerName?: string;
+  userName?: string;
+  customerEmail?: string;
+  technicianEmail?: string;
+  assignedTechnicianEmail?: string;
+  providerEmail?: string;
+  technicianId?: string;
+  assignedTechnicianId?: string;
+  area?: string;
+  location?: string;
+  date?: string;
+  scheduledDate?: string;
+  status?: string;
+  amount?: number;
+  price?: number;
+}
+
+export interface TechnicianBookingItem {
+  id: string;
+  serviceTitle: string;
+  customerName: string;
+  area: string;
+  date: string;
+  status: string;
+  amount: number;
 }

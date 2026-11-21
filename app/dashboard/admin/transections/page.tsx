@@ -1,11 +1,95 @@
-import React from 'react';
+import React from "react";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import TransactionsView, {
+  AdminTransactionItem,
+} from "@/components/shared/TransactionsView";
 
-const TransectionsPage = () => {
-    return (
-        <div>
-            all transections
-        </div>
-    );
-};
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.BACKEND_URL ||
+  "https://fix-mate-server.vercel.app";
 
-export default TransectionsPage;
+interface RawPaymentDoc {
+  _id?: string;
+  id?: string;
+  serviceTitle?: string;
+  customerEmail?: string;
+  technicianEmail?: string;
+  transactionId?: string;
+  stripeSessionId?: string;
+  status?: string;
+  paymentStatus?: string;
+  currency?: string;
+  amount?: number | string;
+  paidAt?: string | Date;
+  createdAt?: string | Date;
+}
+
+interface PaymentsResponseWrapper {
+  payments?: RawPaymentDoc[];
+  data?: RawPaymentDoc[];
+}
+
+function parseNumericAmount(raw: unknown): number {
+  if (typeof raw === "number") {
+    return Number.isFinite(raw) ? raw : 0;
+  }
+  if (typeof raw === "string") {
+    const cleaned = raw.replace(/[^0-9.-]+/g, "");
+    const num = Number(cleaned);
+    return Number.isFinite(num) ? num : 0;
+  }
+  return 0;
+}
+
+function formatDateValue(rawDate: unknown): string {
+  if (!rawDate) return "N/A";
+  const parsed = new Date(String(rawDate));
+  if (Number.isNaN(parsed.getTime())) {
+    return String(rawDate);
+  }
+  return parsed.toLocaleDateString();
+}
+
+export default async function TransectionsPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.email) {
+    redirect("/sign-in");
+  }
+
+  let rawList: RawPaymentDoc[] = [];
+
+  try {
+    const res = await fetch(`${BASE_URL}/payments`, { cache: "no-store" });
+    if (res.ok) {
+      const data: RawPaymentDoc[] | PaymentsResponseWrapper = await res.json();
+      if (Array.isArray(data)) {
+        rawList = data;
+      } else {
+        rawList = data.payments || data.data || [];
+      }
+    }
+  } catch (error) {
+    console.error("Failed to load all transactions:", error);
+  }
+
+  const transactions: AdminTransactionItem[] = rawList.map((doc, index) => ({
+    id: String(doc._id || doc.id || `tx-${index}`),
+    serviceTitle: doc.serviceTitle || "Repair Service",
+    customerEmail: doc.customerEmail || "N/A",
+    technicianEmail: doc.technicianEmail || "N/A",
+    transactionId: doc.transactionId || doc.stripeSessionId || "N/A",
+    status: String(doc.status || doc.paymentStatus || "paid"),
+    currency: String(doc.currency || "usd"),
+    amount: parseNumericAmount(doc.amount),
+    paidAt: formatDateValue(doc.paidAt || doc.createdAt),
+  }));
+
+  return <TransactionsView transactions={transactions} />;
+}

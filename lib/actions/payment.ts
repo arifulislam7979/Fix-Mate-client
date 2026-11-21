@@ -18,7 +18,7 @@ export const createPayment = async (booking: Bookings) => {
 export const getCustomerPayments = async (
   customerEmail: string,
 ): Promise<PaymentRecord[]> => {
-  const url = new URL(`${BASE_URL}/payments?${customerEmail}`);
+  const url = new URL(`${BASE_URL}/payments`);
   url.searchParams.set("customerEmail", customerEmail);
 
   const res = await fetch(url.toString(), { cache: "no-store" });
