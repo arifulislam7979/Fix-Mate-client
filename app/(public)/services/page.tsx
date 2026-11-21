@@ -11,11 +11,76 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { IServiceItem } from "@/app/types";
-import { getApprovedServices } from "@/lib/api/services";
-import { Loader2, Home, MapPin, Wrench, ArrowUpRight } from "lucide-react";
+import {
+  ApprovedServicesQueryParams,
+  getApprovedServices,
+} from "@/lib/api/services";
 
-async function ApprovedServicesList() {
-  const services: IServiceItem[] = await getApprovedServices();
+import { Loader2, Home, MapPin, Wrench, ArrowUpRight } from "lucide-react";
+import ServicesFilterBar from "@/components/shared/ServicesFilterBar";
+
+interface ServicesSearchParams {
+  q?: string;
+  category?: string;
+  mode?: string;
+  sort?: string;
+}
+
+interface ServicesPageProps {
+  searchParams: Promise<ServicesSearchParams>;
+}
+
+const DEFAULT_CATEGORIES = [
+  "AC",
+  "Refrigerator",
+  "Washing Machine",
+  "Television",
+  "Laptop & PC",
+  "Smartphone",
+  "Microwave",
+];
+
+const DEFAULT_MODES = ["Home Visit", "Shop Drop-off"];
+
+function ServicesGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <Card
+          key={index}
+          className="rounded-2xl overflow-hidden border-border/70 shadow-xs"
+        >
+          <div className="h-52 w-full bg-muted animate-pulse" />
+          <CardHeader className="space-y-2 pb-2.5">
+            <div className="h-5 w-3/4 bg-muted rounded animate-pulse" />
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="h-4 w-full bg-muted rounded animate-pulse" />
+            <div className="h-4 w-5/6 bg-muted rounded animate-pulse" />
+            <div className="h-4 w-2/3 bg-muted rounded animate-pulse pt-1" />
+            <div className="h-6 w-24 bg-muted rounded animate-pulse mt-2" />
+          </CardContent>
+          <CardFooter className="pt-2 pb-5 px-6">
+            <div className="h-10 w-full bg-muted rounded-xl animate-pulse" />
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+async function ApprovedServicesList({
+  queryParams,
+}: {
+  queryParams: ApprovedServicesQueryParams;
+}) {
+  const services: IServiceItem[] = await getApprovedServices(queryParams);
+
+  const hasFilter = Boolean(
+    queryParams.q?.trim() ||
+      (queryParams.category && queryParams.category.toLowerCase() !== "all") ||
+      (queryParams.mode && queryParams.mode.toLowerCase() !== "all"),
+  );
 
   if (services.length === 0) {
     return (
@@ -24,11 +89,12 @@ async function ApprovedServicesList() {
           <Wrench className="h-5 w-5" />
         </div>
         <h2 className="text-base font-semibold text-foreground">
-          No Approved Services Yet
+          {hasFilter ? "No Matching Services Found" : "No Approved Services Yet"}
         </h2>
         <p className="text-xs sm:text-sm text-muted-foreground">
-          No approved repair services are available right now. Please check back
-          shortly.
+          {hasFilter
+            ? "Try changing your search keyword, category, mode, or sorting option."
+            : "No approved repair services are available right now. Please check back shortly."}
         </p>
       </div>
     );
@@ -106,36 +172,51 @@ async function ApprovedServicesList() {
   );
 }
 
-function ServicesGridSkeleton() {
+async function DynamicServicesSection({
+  searchParams,
+}: {
+  searchParams: Promise<ServicesSearchParams>;
+}) {
+  const resolvedParams = await searchParams;
+  const queryParams: ApprovedServicesQueryParams = {
+    q: resolvedParams.q,
+    category: resolvedParams.category,
+    mode: resolvedParams.mode,
+    sort: resolvedParams.sort,
+  };
+
+  const suspenseKey = JSON.stringify(queryParams);
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <Card
-          key={index}
-          className="rounded-2xl overflow-hidden border-border/70 shadow-xs"
-        >
-          <div className="h-52 w-full bg-muted animate-pulse" />
-          <CardHeader className="space-y-2 pb-2.5">
-            <div className="h-5 w-3/4 bg-muted rounded animate-pulse" />
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="h-4 w-full bg-muted rounded animate-pulse" />
-            <div className="h-4 w-5/6 bg-muted rounded animate-pulse" />
-            <div className="h-4 w-2/3 bg-muted rounded animate-pulse pt-1" />
-            <div className="h-6 w-24 bg-muted rounded animate-pulse mt-2" />
-          </CardContent>
-          <CardFooter className="pt-2 pb-5 px-6">
-            <div className="h-10 w-full bg-muted rounded-xl animate-pulse" />
-          </CardFooter>
-        </Card>
-      ))}
+    <div className="space-y-8">
+      <Suspense fallback={<div className="h-14 rounded-2xl bg-muted/40" />}>
+        <ServicesFilterBar
+          categories={DEFAULT_CATEGORIES}
+          modes={DEFAULT_MODES}
+        />
+      </Suspense>
+
+      <Suspense
+        key={suspenseKey}
+        fallback={
+          <div className="space-y-6">
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <span>Loading approved services...</span>
+            </div>
+            <ServicesGridSkeleton />
+          </div>
+        }
+      >
+        <ApprovedServicesList queryParams={queryParams} />
+      </Suspense>
     </div>
   );
 }
 
-export default function ServicesPage() {
+export default function ServicesPage({ searchParams }: ServicesPageProps) {
   return (
-    <div className="container mx-auto px-4 py-10 space-y-9">
+    <div className="container mx-auto px-4 py-10 space-y-8">
       {/* Page Header */}
       <div className="text-center space-y-2.5 max-w-2xl mx-auto">
         <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full">
@@ -150,19 +231,16 @@ export default function ServicesPage() {
         </p>
       </div>
 
-      {/* Suspense Wrapper */}
+      {/* Runtime searchParams wrapped in Suspense */}
       <Suspense
         fallback={
           <div className="space-y-6">
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              <span>Loading approved services...</span>
-            </div>
+            <div className="h-14 rounded-2xl bg-muted/40 animate-pulse" />
             <ServicesGridSkeleton />
           </div>
         }
       >
-        <ApprovedServicesList />
+        <DynamicServicesSection searchParams={searchParams} />
       </Suspense>
     </div>
   );

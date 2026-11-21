@@ -99,7 +99,6 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
 
       if (
         result?.success ||
-        result?.acknowledged ||
         result?.modifiedCount > 0 ||
         result?._id
       ) {
