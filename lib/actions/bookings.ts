@@ -4,6 +4,7 @@ import { Bookings, } from "@/app/types";
 import { BookingStatusUpdatePayload } from "@/components/shared/TechnicianRequestsClient";
 import { notFound } from "next/navigation";
 
+
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
@@ -12,6 +13,7 @@ export const bookingsData = async (bookingData: Bookings) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      
     },
     body: JSON.stringify(bookingData),
   });

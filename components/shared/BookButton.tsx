@@ -6,12 +6,29 @@ import { Bookings, IServiceItem, ServiceCategory, UserRole } from "@/app/types";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { X, Loader2, Calendar, MapPin, Phone, FileText } from "lucide-react";
+import {
+  X,
+  Loader2,
+  Calendar,
+  MapPin,
+  Phone,
+  FileText,
+  User,
+  Mail,
+} from "lucide-react";
 import { bookingsData } from "@/lib/actions/bookings";
 
 interface BookButtonProps {
   isAvailable: boolean;
   service: IServiceItem;
+}
+
+function getTodayDateInputValue(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 export default function BookButton({ isAvailable, service }: BookButtonProps) {
@@ -26,6 +43,9 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
   const [address, setAddress] = useState("");
   const [preferredDate, setPreferredDate] = useState("");
   const [problemDescription, setProblemDescription] = useState("");
+
+  const todayDate = getTodayDateInputValue();
+  const trimmedDescription = problemDescription.trim();
 
   const handleBookClick = () => {
     if (!user) {
@@ -45,6 +65,30 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
     e.preventDefault();
     if (!user) return;
 
+    const cleanPhone = phone.trim();
+    const cleanAddress = address.trim();
+    const cleanDescription = problemDescription.trim();
+
+    if (!cleanPhone) {
+      toast.error("Please enter your phone number.");
+      return;
+    }
+
+    if (!cleanAddress) {
+      toast.error("Please enter your service address.");
+      return;
+    }
+
+    if (!preferredDate || preferredDate < todayDate) {
+      toast.error("Preferred date must be today or a future date.");
+      return;
+    }
+
+    if (cleanDescription.length < 20) {
+      toast.error("Problem description must be at least 20 characters.");
+      return;
+    }
+
     try {
       setSubmitting(true);
 
@@ -61,10 +105,10 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
         customerEmail: user.email || "",
         customerRole: ((user as { role?: string }).role ||
           "customer") as UserRole,
-        customerPhone: phone.trim(),
-        address: address.trim(),
+        customerPhone: cleanPhone,
+        address: cleanAddress,
         preferredDate,
-        problemDescription: problemDescription.trim(),
+        problemDescription: cleanDescription,
         status: "requested",
         paymentStatus: "unpaid",
       };
@@ -108,7 +152,7 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
       {/* Booking Information Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-xs p-4">
-          <div className="bg-card border border-border rounded-2xl max-w-lg w-full shadow-xl overflow-hidden animate-in fade-in zoom-in-95">
+          <div className="bg-card border border-border rounded-2xl max-w-lg w-full shadow-xl overflow-hidden animate-in fade-in zoom-in-95 max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border/70">
               <div>
                 <h3 className="text-lg font-bold">Book Repair Service</h3>
@@ -125,7 +169,40 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
               </button>
             </div>
 
-            <form onSubmit={handleBookingSubmit} className="p-6 space-y-4">
+            <form
+              onSubmit={handleBookingSubmit}
+              className="p-6 space-y-4 overflow-y-auto"
+            >
+              {/* Name & Email (Read-only from session) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5 text-primary" />
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={user?.name || ""}
+                    className="w-full h-10 px-3 rounded-xl border border-border/80 bg-muted/60 text-muted-foreground text-sm cursor-not-allowed focus:outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5 text-primary" />
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    readOnly
+                    value={user?.email || ""}
+                    className="w-full h-10 px-3 rounded-xl border border-border/80 bg-muted/60 text-muted-foreground text-sm cursor-not-allowed focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold flex items-center gap-1.5">
                   <Phone className="h-3.5 w-3.5 text-primary" />
@@ -141,6 +218,7 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
                 />
               </div>
 
+              {/* Preferred Date (Today or future date only) */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold flex items-center gap-1.5">
                   <Calendar className="h-3.5 w-3.5 text-primary" />
@@ -149,16 +227,18 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
                 <input
                   type="date"
                   required
+                  min={todayDate}
                   value={preferredDate}
                   onChange={(e) => setPreferredDate(e.target.value)}
                   className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
+              {/* Address */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold flex items-center gap-1.5">
                   <MapPin className="h-3.5 w-3.5 text-primary" />
-                  Service Address *
+                  Address *
                 </label>
                 <input
                   type="text"
@@ -170,16 +250,30 @@ export default function BookButton({ isAvailable, service }: BookButtonProps) {
                 />
               </div>
 
+              {/* Problem Description (Minimum 20 characters) */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold flex items-center gap-1.5">
-                  <FileText className="h-3.5 w-3.5 text-primary" />
-                  Problem Details (Optional)
-                </label>
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-xs font-semibold flex items-center gap-1.5">
+                    <FileText className="h-3.5 w-3.5 text-primary" />
+                    Problem Description *
+                  </label>
+                  <span
+                    className={`text-[11px] font-medium ${
+                      trimmedDescription.length >= 20
+                        ? "text-emerald-600"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {trimmedDescription.length}/20 min chars
+                  </span>
+                </div>
                 <textarea
                   rows={3}
+                  required
+                  minLength={20}
                   value={problemDescription}
                   onChange={(e) => setProblemDescription(e.target.value)}
-                  placeholder="Describe the issue briefly..."
+                  placeholder="Describe the problem in at least 20 characters..."
                   className="w-full p-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 />
               </div>

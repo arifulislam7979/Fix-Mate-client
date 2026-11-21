@@ -16,7 +16,7 @@ export default function Hero() {
       {/* Background Decorative Glow */}
       <div className="absolute top-1/2 left-1/2 -z-10 h-[350px] w-[350px] sm:h-[500px] sm:w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Text & CTA */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
@@ -71,7 +71,7 @@ export default function Hero() {
                   4.9/5
                 </span>
                 <span className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                  <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />{" "}
+                  <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
                   Customer Rating
                 </span>
               </div>
@@ -95,7 +95,7 @@ export default function Hero() {
           </div>
 
           {/* Right Column: Visual Card / Graphic Showcase */}
-          <div className="lg:col-span-5 flex justify-center">
+          <div className="lg:col-span-5 flex justify-center pb-6">
             <div className="relative w-full max-w-md">
               {/* Main Card */}
               <div className="rounded-3xl border border-border/80 bg-card/90 p-6 sm:p-8 shadow-2xl backdrop-blur space-y-6">
@@ -114,7 +114,7 @@ export default function Hero() {
                     </div>
                   </div>
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />{" "}
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
                     Live
                   </span>
                 </div>
@@ -154,7 +154,7 @@ export default function Hero() {
               </div>
 
               {/* Floating Badge Accent */}
-              <div className="absolute -bottom-6 -left-6 hidden sm:flex items-center gap-3 rounded-2xl border border-border/80 bg-card p-4 shadow-xl backdrop-blur">
+              <div className="mt-4 sm:mt-0 sm:absolute sm:-bottom-8 sm:-left-6 flex items-center gap-3 rounded-2xl border border-border/80 bg-card p-4 shadow-xl backdrop-blur">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 font-bold">
                   ★
                 </div>

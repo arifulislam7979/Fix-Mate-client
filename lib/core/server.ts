@@ -9,3 +9,11 @@ export const getSession = async() => {
     })
     return session
 }
+
+export const getToken = async () => {
+  const jwtToken = await auth.api.getToken({
+    headers: await headers(),
+  });
+  const token = jwtToken?.token;
+  return token;
+};
