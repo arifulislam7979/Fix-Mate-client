@@ -102,9 +102,11 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">All Transactions</h1>
-        <p className="text-sm text-muted-foreground">
+      <div className="flex flex-col gap-1 border-b border-border/60 pb-4">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          All Transactions
+        </h1>
+        <p className="text-sm text-muted-foreground max-w-2xl">
           Monitor all customer payments, technician payouts, and Stripe
           transaction records across the platform.
         </p>
@@ -112,16 +114,16 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-2">
+        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs transition-all hover:border-border space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Total Paid Volume
             </span>
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-500/20">
               <CreditCard className="h-4 w-4" />
             </span>
           </div>
-          <p className="text-2xl font-bold tracking-tight">
+          <p className="text-3xl font-bold tracking-tight tabular-nums text-foreground">
             ${totalRevenue.toFixed(2)}
           </p>
           <p className="text-xs text-muted-foreground">
@@ -129,16 +131,16 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-2">
+        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs transition-all hover:border-border space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Total Transactions
             </span>
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/15 text-sky-700">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/15 text-sky-700 ring-1 ring-sky-500/20">
               <Receipt className="h-4 w-4" />
             </span>
           </div>
-          <p className="text-2xl font-bold tracking-tight">
+          <p className="text-3xl font-bold tracking-tight tabular-nums text-foreground">
             {transactions.length}
           </p>
           <p className="text-xs text-muted-foreground">
@@ -146,16 +148,18 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-2">
+        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs transition-all hover:border-border space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Pending Payments
             </span>
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 ring-1 ring-amber-500/20">
               <Clock className="h-4 w-4" />
             </span>
           </div>
-          <p className="text-2xl font-bold tracking-tight">{pendingCount}</p>
+          <p className="text-3xl font-bold tracking-tight tabular-nums text-foreground">
+            {pendingCount}
+          </p>
           <p className="text-xs text-muted-foreground">
             Awaiting payment confirmation
           </p>
@@ -163,22 +167,22 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
       </div>
 
       {/* Search & Status Filter */}
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-xs flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1">
-          <Search className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="h-4 w-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by service, customer email, technician email, or transaction ID..."
-            className="w-full rounded-xl border border-border bg-background pl-9 pr-3.5 py-2 text-sm outline-none focus:border-primary"
+            className="w-full rounded-xl border border-border bg-background/70 pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/80 shadow-2xs transition-colors outline-none focus:border-primary focus:bg-background"
           />
         </div>
 
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-xl border border-border bg-background px-3.5 py-2 text-sm outline-none focus:border-primary"
+          className="rounded-xl border border-border bg-background/70 px-4 py-2.5 text-sm font-medium text-foreground shadow-2xs transition-colors outline-none focus:border-primary focus:bg-background cursor-pointer"
         >
           <option value="all">All Status</option>
           <option value="paid">Paid</option>
@@ -190,8 +194,10 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
 
       {/* Empty State or List */}
       {filteredTransactions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center space-y-1">
-          <p className="text-base font-semibold">No transactions found</p>
+        <div className="rounded-2xl border border-dashed border-border bg-card/60 px-6 py-12 text-center space-y-1.5">
+          <p className="text-base font-semibold text-foreground">
+            No transactions found
+          </p>
           <p className="text-sm text-muted-foreground">
             Try adjusting your search keyword or status filter.
           </p>
@@ -199,11 +205,11 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
       ) : (
         <>
           {/* Desktop Table */}
-          <div className="hidden md:block overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
+          <div className="hidden md:block overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-border bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <tr className="border-b border-border bg-muted/50 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     <th className="py-3.5 px-4">Service</th>
                     <th className="py-3.5 px-4">Customer</th>
                     <th className="py-3.5 px-4">Technician</th>
@@ -213,13 +219,13 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
                     <th className="py-3.5 px-4 text-right">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/70 text-sm">
+                <tbody className="divide-y divide-border/60 text-sm">
                   {filteredTransactions.map((tx) => (
                     <tr
                       key={tx.id}
-                      className="hover:bg-muted/25 transition-colors"
+                      className="hover:bg-muted/30 transition-colors"
                     >
-                      <td className="py-3.5 px-4 font-semibold">
+                      <td className="py-3.5 px-4 font-semibold text-foreground">
                         {tx.serviceTitle}
                       </td>
                       <td className="py-3.5 px-4 text-xs text-muted-foreground">
@@ -229,15 +235,17 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
                         {tx.technicianEmail}
                       </td>
                       <td className="py-3.5 px-4 font-mono text-xs text-muted-foreground">
-                        {tx.transactionId}
+                        <span className="rounded-md bg-muted/60 px-2 py-1">
+                          {tx.transactionId}
+                        </span>
                       </td>
-                      <td className="py-3.5 px-4 text-xs text-muted-foreground">
+                      <td className="py-3.5 px-4 text-xs text-muted-foreground whitespace-nowrap">
                         <span className="inline-flex items-center gap-1.5">
-                          <Calendar className="h-3.5 w-3.5" />
+                          <Calendar className="h-3.5 w-3.5 text-muted-foreground/80" />
                           {tx.paidAt}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <span
                           className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${getPaymentStatusStyle(
                             tx.status,
@@ -247,7 +255,7 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
                           {tx.status}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-right font-bold">
+                      <td className="py-3.5 px-4 text-right font-bold tabular-nums text-foreground whitespace-nowrap">
                         {formatCurrencyAmount(tx.amount, tx.currency)}
                       </td>
                     </tr>
@@ -262,11 +270,13 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
             {filteredTransactions.map((tx) => (
               <div
                 key={tx.id}
-                className="rounded-2xl border border-border bg-card p-4 shadow-xs space-y-2.5"
+                className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs space-y-3"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h3 className="font-semibold">{tx.serviceTitle}</h3>
+                  <div className="space-y-0.5">
+                    <h3 className="font-semibold text-foreground">
+                      {tx.serviceTitle}
+                    </h3>
                     <p className="text-xs text-muted-foreground">
                       Customer: {tx.customerEmail}
                     </p>
@@ -284,13 +294,16 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
                   </span>
                 </div>
 
-                <p className="font-mono text-xs text-muted-foreground break-all">
+                <p className="font-mono text-xs text-muted-foreground break-all rounded-lg bg-muted/50 px-2.5 py-1.5">
                   Txn: {tx.transactionId}
                 </p>
 
                 <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs text-muted-foreground">
-                  <span>{tx.paidAt}</span>
-                  <span className="text-sm font-bold text-foreground">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5" />
+                    {tx.paidAt}
+                  </span>
+                  <span className="text-sm font-bold tabular-nums text-foreground">
                     {formatCurrencyAmount(tx.amount, tx.currency)}
                   </span>
                 </div>
