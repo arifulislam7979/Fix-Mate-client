@@ -20,6 +20,7 @@ import { Users } from "@/app/types";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { deleteUser, updateUserRole } from "@/lib/api/users";
+import Image from "next/image";
 
 interface UsersClientProps {
   initialUsers: Users[];
@@ -30,6 +31,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
 
   const router = useRouter();
 
@@ -114,21 +116,41 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                     const isVerified = user.isVerified || true;
                     const isProcessing = actionLoading === userId;
                     const isMainAdmin = user.email === "admin@gmail.com";
+                    const hasValidImage =
+                      Boolean(user.image) && !brokenImages[userId];
 
                     return (
                       <tr
                         key={userId}
                         className="hover:bg-[#E2E1D8]/65 transition-colors"
                       >
-                        <td className="py-3.5 px-4 font-medium flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/25 flex items-center justify-center text-primary font-bold text-xs">
-                            {user.name
-                              ? user.name.charAt(0).toUpperCase()
-                              : "U"}
-                          </div>
-                          {user.name || "N/A"}{" "}
+                        <td className="py-3.5 px-4 font-medium flex items-center gap-2.5">
+                          {hasValidImage ? (
+                            <div className="relative h-8 w-8 rounded-full overflow-hidden border border-[#B8B5A5] bg-[#E2E1D8] shrink-0">
+                              <Image
+                                src={user.image!}
+                                alt={user.name || "User avatar"}
+                                fill
+                                sizes="32px"
+                                onError={() =>
+                                  setBrokenImages((prev) => ({
+                                    ...prev,
+                                    [userId]: true,
+                                  }))
+                                }
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/25 flex items-center justify-center text-primary font-bold text-xs shrink-0">
+                              {user.name
+                                ? user.name.charAt(0).toUpperCase()
+                                : "U"}
+                            </div>
+                          )}
+                          <span className="truncate">{user.name || "N/A"}</span>
                           {isMainAdmin && (
-                            <span className="text-[10px] bg-[#E2E1D8] border border-[#B8B5A5] text-primary px-1.5 py-0.5 rounded ml-1">
+                            <span className="text-[10px] bg-[#E2E1D8] border border-[#B8B5A5] text-primary px-1.5 py-0.5 rounded ml-1 shrink-0">
                               You
                             </span>
                           )}

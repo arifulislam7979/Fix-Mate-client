@@ -244,32 +244,35 @@ export default async function AdminPage() {
   ];
 
   return (
-    <div className="min-h-full rounded-3xl bg-[#EBECE4]/65 p-4 sm:p-6">
+    <div className="min-h-full rounded-3xl border border-[#C2C0B1] bg-[#EBECE4] p-4 sm:p-6 shadow-xs">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-border/70 bg-[#E2E1D8]/75 px-5 py-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[#C2C0B1] bg-[#E2E1D8]/85 px-5 py-4 shadow-2xs">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary mb-1">
-              <ShieldCheck className="h-4 w-4" />
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#C2C0B1] bg-[#EBECE4] px-2.5 py-0.5 text-xs font-semibold text-primary mb-1.5">
+              <ShieldCheck className="h-3.5 w-3.5" />
               <span>Admin Overview</span>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
               Platform Control Center
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mt-0.5">
               Monitor users, technician service approvals, bookings, and platform
               revenue.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <Link href="/dashboard/admin/services">
-              <Button variant="outline" className="rounded-xl cursor-pointer bg-[#EBECE4]">
+              <Button
+                variant="outline"
+                className="rounded-xl cursor-pointer bg-[#EBECE4] border-[#C2C0B1] hover:bg-[#E2E1D8] text-foreground font-semibold shadow-2xs"
+              >
                 Review Pending Services ({pendingServices})
               </Button>
             </Link>
             <Link href="/dashboard/admin/transactions">
-              <Button className="rounded-xl cursor-pointer">
+              <Button className="rounded-xl cursor-pointer font-semibold shadow-xs">
                 Transactions
                 <ArrowUpRight className="ml-1.5 h-4 w-4" />
               </Button>
@@ -285,22 +288,24 @@ export default async function AdminPage() {
               <Link
                 key={card.title}
                 href={card.href}
-                className="group rounded-2xl border border-border bg-[#EBECE4]/90 p-5 shadow-xs space-y-3 transition-colors hover:border-primary/50"
+                className="group rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] shadow-xs space-y-3 transition-all duration-200 hover:border-[#B8B5A5] hover:shadow-md overflow-hidden"
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground">
+                <div className="flex items-center justify-between px-5 pt-4 pb-3 bg-[#E2E1D8]/70 border-b border-[#C2C0B1]">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {card.title}
                   </span>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/25">
                     <Icon className="h-4 w-4" />
                   </div>
                 </div>
-                <div className="text-2xl font-bold tracking-tight">
-                  {card.value}
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{card.subtitle}</span>
-                  <ArrowUpRight className="h-4 w-4 opacity-70 group-hover:opacity-100 transition-opacity" />
+                <div className="px-5 pb-4 pt-1 space-y-2 bg-[#EBECE4]">
+                  <div className="text-2xl font-bold tracking-tight text-foreground">
+                    {card.value}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{card.subtitle}</span>
+                    <ArrowUpRight className="h-4 w-4 text-primary opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                  </div>
                 </div>
               </Link>
             );
@@ -315,22 +320,24 @@ export default async function AdminPage() {
               <Link
                 key={card.title}
                 href={card.href}
-                className="group rounded-2xl border border-border bg-[#EBECE4]/90 p-5 shadow-xs space-y-3 transition-colors hover:border-primary/50"
+                className="group rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] shadow-xs space-y-3 transition-all duration-200 hover:border-[#B8B5A5] hover:shadow-md overflow-hidden"
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground">
+                <div className="flex items-center justify-between px-5 pt-4 pb-3 bg-[#E2E1D8]/70 border-b border-[#C2C0B1]">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {card.title}
                   </span>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E2E1D8] text-foreground">
-                    <Icon className="h-4 w-4" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#EBECE4] text-foreground border border-[#C2C0B1]">
+                    <Icon className="h-4 w-4 text-primary" />
                   </div>
                 </div>
-                <div className="text-2xl font-bold tracking-tight">
-                  {card.value}
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{card.subtitle}</span>
-                  <ArrowUpRight className="h-4 w-4 opacity-70 group-hover:opacity-100 transition-opacity" />
+                <div className="px-5 pb-4 pt-1 space-y-2 bg-[#EBECE4]">
+                  <div className="text-2xl font-bold tracking-tight text-foreground">
+                    {card.value}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{card.subtitle}</span>
+                    <ArrowUpRight className="h-4 w-4 text-primary opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                  </div>
                 </div>
               </Link>
             );
@@ -338,51 +345,67 @@ export default async function AdminPage() {
         </div>
 
         {/* Management Shortcuts */}
-        <div className="rounded-2xl border border-border bg-[#EBECE4]/90 p-6 shadow-xs space-y-4">
-          <div className="border-b border-border/70 pb-3">
-            <h2 className="text-base font-bold">Quick Administration</h2>
-            <p className="text-xs text-muted-foreground">
+        <div className="rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] shadow-xs overflow-hidden">
+          <div className="px-6 py-4 bg-[#E2E1D8]/80 border-b border-[#C2C0B1]">
+            <h2 className="text-base font-bold text-foreground">
+              Quick Administration
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
               Jump directly to core admin management sections
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
-            <Link
-              href="/dashboard/admin/users"
-              className="rounded-xl border border-border/70 bg-[#E2E1D8]/70 p-4 hover:bg-[#E2E1D8] transition-colors"
-            >
-              <p className="font-semibold">Manage Users</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                View accounts & update roles
-              </p>
-            </Link>
-            <Link
-              href="/dashboard/admin/services"
-              className="rounded-xl border border-border/70 bg-[#E2E1D8]/70 p-4 hover:bg-[#E2E1D8] transition-colors"
-            >
-              <p className="font-semibold">Service Approval</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Approve or reject pending listings
-              </p>
-            </Link>
-            <Link
-              href="/dashboard/admin/bookings"
-              className="rounded-xl border border-border/70 bg-[#E2E1D8]/70 p-4 hover:bg-[#E2E1D8] transition-colors"
-            >
-              <p className="font-semibold">All Bookings</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Track repair job statuses
-              </p>
-            </Link>
-            <Link
-              href="/dashboard/admin/transactions"
-              className="rounded-xl border border-border/70 bg-[#E2E1D8]/70 p-4 hover:bg-[#E2E1D8] transition-colors"
-            >
-              <p className="font-semibold">Transactions</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Inspect Stripe payment records
-              </p>
-            </Link>
+          <div className="p-6 bg-[#EBECE4]">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+              <Link
+                href="/dashboard/admin/users"
+                className="group rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 p-4 hover:bg-[#E2E1D8] hover:border-[#B8B5A5] transition-colors"
+              >
+                <p className="font-semibold text-foreground flex items-center justify-between">
+                  <span>Manage Users</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  View accounts &amp; update roles
+                </p>
+              </Link>
+              <Link
+                href="/dashboard/admin/services"
+                className="group rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 p-4 hover:bg-[#E2E1D8] hover:border-[#B8B5A5] transition-colors"
+              >
+                <p className="font-semibold text-foreground flex items-center justify-between">
+                  <span>Service Approval</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Approve or reject pending listings
+                </p>
+              </Link>
+              <Link
+                href="/dashboard/admin/bookings"
+                className="group rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 p-4 hover:bg-[#E2E1D8] hover:border-[#B8B5A5] transition-colors"
+              >
+                <p className="font-semibold text-foreground flex items-center justify-between">
+                  <span>All Bookings</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Track repair job statuses
+                </p>
+              </Link>
+              <Link
+                href="/dashboard/admin/transactions"
+                className="group rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 p-4 hover:bg-[#E2E1D8] hover:border-[#B8B5A5] transition-colors"
+              >
+                <p className="font-semibold text-foreground flex items-center justify-between">
+                  <span>Transactions</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Inspect Stripe payment records
+                </p>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
