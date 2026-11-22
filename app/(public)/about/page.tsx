@@ -79,7 +79,7 @@ async function HeroActionButtons() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
       <Link href="/services">
-        <Button className="rounded-xl cursor-pointer font-semibold gap-1.5 px-5">
+        <Button className="rounded-xl cursor-pointer font-semibold gap-1.5 px-5 h-10 shadow-2xs">
           <span>Explore Services</span>
           <ArrowRight className="h-4 w-4" />
         </Button>
@@ -89,7 +89,7 @@ async function HeroActionButtons() {
         <Link href={dashboardHref}>
           <Button
             variant="outline"
-            className="rounded-xl cursor-pointer font-semibold gap-1.5 px-5"
+            className="rounded-xl cursor-pointer font-semibold gap-1.5 px-5 h-10 bg-[#FAF9F5] border-stone-200/90 hover:bg-white text-foreground"
           >
             <LayoutDashboard className="h-4 w-4" />
             <span>Go to Dashboard</span>
@@ -99,7 +99,7 @@ async function HeroActionButtons() {
         <Link href="/sign-up">
           <Button
             variant="outline"
-            className="rounded-xl cursor-pointer font-semibold px-5"
+            className="rounded-xl cursor-pointer font-semibold px-5 h-10 bg-[#FAF9F5] border-stone-200/90 hover:bg-white text-foreground"
           >
             Join as Customer or Technician
           </Button>
@@ -111,153 +111,156 @@ async function HeroActionButtons() {
 
 const AboutPage = () => {
   return (
-    <div className="container mx-auto px-4 py-10 sm:py-14 space-y-14">
-      {/* Hero Section */}
-      <section className="max-w-3xl mx-auto text-center space-y-4">
-        <Badge
-          variant="secondary"
-          className="rounded-full px-3.5 py-1 text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary border-primary/20"
-        >
-          About Our Platform
-        </Badge>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-          Reliable Repair Services Made Simple & Transparent
-        </h1>
-        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-          We connect customers with trusted technicians for everyday home and
-          appliance repairs. From booking a service and tracking work progress
-          to viewing clear pricing, everything is designed to be fast,
-          organized, and stress-free.
-        </p>
-
-        <Suspense
-          fallback={
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              <Link href="/services">
-                <Button className="rounded-xl cursor-pointer font-semibold gap-1.5 px-5">
-                  <span>Explore Services</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          }
-        >
-          <HeroActionButtons />
-        </Suspense>
-      </section>
-
-      {/* Highlights Grid */}
-      <section className="space-y-6">
-        <div className="text-center max-w-xl mx-auto space-y-1.5">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-            Why Choose Us
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Built for clear communication, dependable service, and smooth booking
-            management.
+    <section className="min-h-screen w-full bg-[#F6F6F1]">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-14 sm:space-y-16">
+        {/* Hero Section */}
+        <div className="max-w-3xl mx-auto text-center space-y-4 border-b border-stone-200/80 pb-10">
+          <Badge
+            variant="secondary"
+            className="rounded-full px-3.5 py-1 text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary border border-primary/15"
+          >
+            About Our Platform
+          </Badge>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.15]">
+            Reliable Repair Services Made Simple &amp; Transparent
+          </h1>
+          <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
+            We connect customers with trusted technicians for everyday home and
+            appliance repairs. From booking a service and tracking work progress
+            to viewing clear pricing, everything is designed to be fast,
+            organized, and stress-free.
           </p>
+
+          <Suspense
+            fallback={
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <Link href="/services">
+                  <Button className="rounded-xl cursor-pointer font-semibold gap-1.5 px-5 h-10">
+                    <span>Explore Services</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            }
+          >
+            <HeroActionButtons />
+          </Suspense>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {highlights.map((item) => {
-            const Icon = item.icon;
-            return (
+        {/* Highlights Grid */}
+        <div className="space-y-6 sm:space-y-8">
+          <div className="text-center max-w-xl mx-auto space-y-1.5">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              Why Choose Us
+            </h2>
+            <p className="text-xs sm:text-sm text-stone-600">
+              Built for clear communication, dependable service, and smooth
+              booking management.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+            {highlights.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Card
+                  key={item.title}
+                  className="group rounded-2xl border-stone-200/85 bg-[#FAF9F5] shadow-2xs hover:shadow-md hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  <CardContent className="p-5 space-y-3">
+                    <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary border border-primary/15 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-200">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                      {item.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* How It Works */}
+        <div className="rounded-3xl border border-stone-200/85 bg-gradient-to-b from-[#EFEFE7] to-[#ECECE4] p-6 sm:p-10 space-y-8 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 border-b border-stone-200/80 pb-5">
+            <div className="space-y-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                <Wrench className="h-3.5 w-3.5" />
+                How It Works
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                Three Easy Steps to Get Fixed
+              </h2>
+            </div>
+            <p className="text-xs sm:text-sm text-stone-600 max-w-md leading-relaxed">
+              Whether you need quick home repair or manage repair requests as a
+              technician, the workflow stays straightforward.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+            {steps.map((item) => (
               <Card
-                key={item.title}
-                className="rounded-2xl border-border/70 bg-card shadow-xs hover:shadow-md hover:border-primary/35 transition-all"
+                key={item.step}
+                className="rounded-2xl border-stone-200/85 bg-[#FAF9F5] shadow-2xs hover:shadow-md hover:border-primary/35 transition-all duration-200"
               >
-                <CardContent className="p-5 space-y-3">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="text-base font-bold text-foreground">
+                <CardContent className="p-5 sm:p-6 space-y-2.5">
+                  <span className="text-xs font-bold tracking-widest text-primary bg-primary/10 border border-primary/15 px-2.5 py-1 rounded-lg inline-block">
+                    STEP {item.step}
+                  </span>
+                  <h3 className="text-base sm:text-lg font-bold text-foreground pt-1">
                     {item.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
                     {item.description}
                   </p>
                 </CardContent>
               </Card>
-            );
-          })}
+            ))}
+          </div>
         </div>
-      </section>
 
-      {/* How It Works */}
-      <section className="rounded-3xl border border-border/70 bg-muted/30 p-6 sm:p-10 space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-          <div className="space-y-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
-              <Wrench className="h-3.5 w-3.5" />
-              How It Works
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Three Easy Steps to Get Fixed
+        {/* Bottom CTA Banner */}
+        <div className="rounded-3xl border border-stone-200/85 bg-[#FAF9F5] p-6 sm:p-10 shadow-2xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary">
+              <Users className="h-4 w-4" />
+              <span>For Customers &amp; Technicians</span>
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              Need a Repair or Ready to Offer Your Service?
             </h2>
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+              Browse available services right away or manage your bookings and
+              repair requests cleanly from your dashboard.
+            </p>
+            <div className="flex flex-wrap items-center gap-4 pt-1.5 text-xs text-stone-600 font-medium">
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                Easy Booking Flow
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                Status &amp; Payment Tracking
+              </span>
+            </div>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
-            Whether you need quick home repair or manage repair requests as a
-            technician, the workflow stays straightforward.
-          </p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {steps.map((item) => (
-            <Card
-              key={item.step}
-              className="rounded-2xl border-border/70 bg-card shadow-xs"
-            >
-              <CardContent className="p-5 space-y-2.5">
-                <span className="text-xs font-bold tracking-widest text-primary bg-primary/10 px-2.5 py-1 rounded-lg inline-block">
-                  STEP {item.step}
-                </span>
-                <h3 className="text-base font-bold text-foreground pt-1">
-                  {item.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  {item.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Bottom CTA Banner */}
-      <section className="rounded-3xl border border-border/70 bg-card p-6 sm:p-10 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <div className="space-y-2 max-w-2xl">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary">
-            <Users className="h-4 w-4" />
-            <span>For Customers & Technicians</span>
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Need a Repair or Ready to Offer Your Service?
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Browse available services right away or manage your bookings and
-            repair requests cleanly from your dashboard.
-          </p>
-          <div className="flex flex-wrap items-center gap-4 pt-1 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-              Easy Booking Flow
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-              Status & Payment Tracking
-            </span>
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <Link href="/services">
+              <Button className="rounded-xl cursor-pointer font-semibold h-10 px-5 shadow-2xs gap-1.5">
+                <span>Browse All Services</span>
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
-
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <Link href="/services">
-            <Button className="rounded-xl cursor-pointer font-semibold">
-              Browse All Services
-            </Button>
-          </Link>
-        </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 };
 

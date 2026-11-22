@@ -2,6 +2,7 @@ import React from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+
 import { getUserByEmail } from "@/lib/api/users";
 import {
   BookingRecord,
@@ -10,6 +11,7 @@ import {
   Users,
 } from "@/app/types";
 import TechnicianPage from "@/components/shared/TechnicianPage";
+import { getToken } from "@/lib/core/server";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -36,6 +38,7 @@ interface BookingSchemaFields {
   paymentStatus?: string;
   address?: string;
   preferredDate?: string;
+  createdAt?: string | Date;
 }
 
 function parseAmount(value: unknown): number {
@@ -63,6 +66,32 @@ function getBookingAmount(booking: BookingRecord): number {
   );
 }
 
+function getBookingTimestamp(booking: BookingRecord): number {
+  const fields = booking as BookingRecord & BookingSchemaFields;
+  const rawDate =
+    fields.createdAt ||
+    fields.preferredDate ||
+    booking.date ||
+    booking.scheduledDate;
+  if (!rawDate) return 0;
+  const time = new Date(String(rawDate)).getTime();
+  return Number.isFinite(time) ? time : 0;
+}
+
+function extractBookingsList(
+  payload: BookingRecord[] | BookingsApiResponse,
+): BookingRecord[] {
+  if (Array.isArray(payload)) return payload;
+  return payload.bookings || payload.data || [];
+}
+
+function extractPaymentsList(
+  payload: PaymentRecord[] | PaymentsApiResponse,
+): PaymentRecord[] {
+  if (Array.isArray(payload)) return payload;
+  return payload.payments || payload.data || [];
+}
+
 export default async function TechnicianOverviewPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -74,70 +103,85 @@ export default async function TechnicianOverviewPage() {
 
   const sessionEmail = session.user.email.trim().toLowerCase();
   const dbUser = (await getUserByEmail(sessionEmail)) as Users | null;
+  const token = await getToken();
 
-  const paymentsUrl = new URL(`${BASE_URL}/payments`);
+  const authHeaders: HeadersInit = token
+    ? { authorization: `Bearer ${token}` }
+    : {};
+
+  const techBookingsUrl = new URL(`${BASE_URL}/bookings/technician`);
+  techBookingsUrl.searchParams.set("technicianEmail", sessionEmail);
+
+  const paymentsUrl = new URL(`${BASE_URL}/payments/admin`);
   paymentsUrl.searchParams.set("technicianEmail", sessionEmail);
 
-  let allBookings: BookingRecord[] = [];
+  let technicianBookings: BookingRecord[] = [];
   let technicianPayments: PaymentRecord[] = [];
 
   try {
     const [bookingsRes, paymentsRes] = await Promise.all([
-      fetch(`${BASE_URL}/bookings`, { cache: "no-store" }),
-      fetch(paymentsUrl.toString(), { cache: "no-store" }),
+      fetch(techBookingsUrl.toString(), {
+        method: "GET",
+        headers: authHeaders,
+        cache: "no-store",
+      }),
+      fetch(paymentsUrl.toString(), {
+        method: "GET",
+        headers: authHeaders,
+        cache: "no-store",
+      }),
     ]);
 
     if (bookingsRes.ok) {
       const bookingsData: BookingRecord[] | BookingsApiResponse =
         await bookingsRes.json();
-      allBookings = Array.isArray(bookingsData)
-        ? bookingsData
-        : bookingsData.bookings || bookingsData.data || [];
+      technicianBookings = extractBookingsList(bookingsData);
     }
 
     if (paymentsRes.ok) {
       const paymentsData: PaymentRecord[] | PaymentsApiResponse =
         await paymentsRes.json();
-      technicianPayments = Array.isArray(paymentsData)
-        ? paymentsData
-        : paymentsData.payments || paymentsData.data || [];
+      technicianPayments = extractPaymentsList(paymentsData);
     }
   } catch (error) {
     console.error("Failed to fetch technician overview data:", error);
   }
 
-  const assignedBookings = allBookings.filter((booking) => {
-    const techEmail = String(
-      booking.technicianEmail ||
-        booking.assignedTechnicianEmail ||
-        booking.providerEmail ||
-        "",
-    )
-      .trim()
-      .toLowerCase();
-    const techId = String(
-      booking.technicianId || booking.assignedTechnicianId || "",
-    );
+  const assignedBookings = technicianBookings
+    .filter((booking) => {
+      const techEmail = String(
+        booking.technicianEmail ||
+          booking.assignedTechnicianEmail ||
+          booking.providerEmail ||
+          "",
+      )
+        .trim()
+        .toLowerCase();
+      const techId = String(
+        booking.technicianId || booking.assignedTechnicianId || "",
+      );
 
-    return (
-      (techEmail !== "" && techEmail === sessionEmail) ||
-      (Boolean(dbUser?._id) && techId === String(dbUser?._id))
-    );
-  });
+      return (
+        techEmail === sessionEmail ||
+        (Boolean(dbUser?._id) && techId === String(dbUser?._id))
+      );
+    })
+    .sort((a, b) => getBookingTimestamp(b) - getBookingTimestamp(a));
 
   const activeJobs = assignedBookings.filter((booking) =>
     ["in-progress", "in progress", "assigned", "accepted"].includes(
-      String(booking.status || "").toLowerCase(),
+      String(booking.status || "").trim().toLowerCase(),
     ),
   ).length;
 
   const completedList = assignedBookings.filter(
-    (booking) => String(booking.status || "").toLowerCase() === "completed",
+    (booking) =>
+      String(booking.status || "").trim().toLowerCase() === "completed",
   );
 
   const pendingJobs = assignedBookings.filter((booking) =>
     ["pending", "requested"].includes(
-      String(booking.status || "").toLowerCase(),
+      String(booking.status || "").trim().toLowerCase(),
     ),
   ).length;
 
@@ -145,7 +189,7 @@ export default async function TechnicianOverviewPage() {
     const state = String(payment.status || payment.paymentStatus || "")
       .trim()
       .toLowerCase();
-    return state === "paid";
+    return state === "paid" || state === "succeeded" || state === "completed";
   });
 
   const paymentsTotal = paidPayments.reduce(
@@ -156,12 +200,11 @@ export default async function TechnicianOverviewPage() {
   const bookingsPaidTotal = assignedBookings
     .filter((booking) => {
       const fields = booking as BookingRecord & BookingSchemaFields;
-      const statusLower = String(booking.status || "").trim().toLowerCase();
       const paymentStatusLower = String(fields.paymentStatus || "")
         .trim()
         .toLowerCase();
 
-      return statusLower === "completed" && paymentStatusLower === "paid";
+      return paymentStatusLower === "paid";
     })
     .reduce((sum, booking) => sum + getBookingAmount(booking), 0);
 

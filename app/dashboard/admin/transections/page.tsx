@@ -1,17 +1,11 @@
 import React from "react";
 import { headers } from "next/headers";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import TransactionsView, {
   AdminTransactionItem,
 } from "@/components/shared/TransactionsView";
 import { allTransection } from "@/lib/actions/payment";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.BACKEND_URL ||
-  "https://fix-mate-server.vercel.app";
 
 interface RawPaymentDoc {
   _id?: string;
@@ -32,6 +26,18 @@ interface RawPaymentDoc {
 interface PaymentsResponseWrapper {
   payments?: RawPaymentDoc[];
   data?: RawPaymentDoc[];
+}
+
+function extractPaymentsArray(payload: unknown): RawPaymentDoc[] {
+  if (Array.isArray(payload)) {
+    return payload as RawPaymentDoc[];
+  }
+  if (payload && typeof payload === "object") {
+    const wrapped = payload as PaymentsResponseWrapper;
+    if (Array.isArray(wrapped.payments)) return wrapped.payments;
+    if (Array.isArray(wrapped.data)) return wrapped.data;
+  }
+  return [];
 }
 
 function parseNumericAmount(raw: unknown): number {
@@ -67,7 +73,8 @@ export default async function TransectionsPage() {
   let rawList: RawPaymentDoc[] = [];
 
   try {
-    rawList = await allTransection();
+    const response = await allTransection();
+    rawList = extractPaymentsArray(response);
   } catch (error) {
     console.error("Failed to load all transactions:", error);
     rawList = [];

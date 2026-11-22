@@ -12,7 +12,9 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { auth } from "@/lib/auth";
+
 import { Button } from "@/components/ui/button";
+import { getToken } from "@/lib/core/server";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -111,6 +113,11 @@ export default async function AdminPage() {
     redirect("/sign-in");
   }
 
+  const token = await getToken();
+  const authHeaders: HeadersInit = token
+    ? { authorization: `Bearer ${token}` }
+    : {};
+
   let usersList: AdminUserRecord[] = [];
   let servicesList: AdminServiceRecord[] = [];
   let bookingsList: AdminBookingRecord[] = [];
@@ -119,10 +126,26 @@ export default async function AdminPage() {
   try {
     const [usersRes, servicesRes, bookingsRes, paymentsRes] = await Promise.all(
       [
-        fetch(`${BASE_URL}/users`, { cache: "no-store" }),
-        fetch(`${BASE_URL}/services`, { cache: "no-store" }),
-        fetch(`${BASE_URL}/bookings`, { cache: "no-store" }),
-        fetch(`${BASE_URL}/payments`, { cache: "no-store" }),
+        fetch(`${BASE_URL}/users`, {
+          method: "GET",
+          headers: authHeaders,
+          cache: "no-store",
+        }),
+        fetch(`${BASE_URL}/services`, {
+          method: "GET",
+          headers: authHeaders,
+          cache: "no-store",
+        }),
+        fetch(`${BASE_URL}/bookings/admin`, {
+          method: "GET",
+          headers: authHeaders,
+          cache: "no-store",
+        }),
+        fetch(`${BASE_URL}/payments/admin`, {
+          method: "GET",
+          headers: authHeaders,
+          cache: "no-store",
+        }),
       ],
     );
 
@@ -351,7 +374,7 @@ export default async function AdminPage() {
             </p>
           </Link>
           <Link
-            href="/dashboard/admin/transections"
+            href="/dashboard/admin/transactions"
             className="rounded-xl border border-border/70 bg-muted/25 p-4 hover:bg-muted/40 transition-colors"
           >
             <p className="font-semibold">Transactions</p>

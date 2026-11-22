@@ -1,14 +1,19 @@
 "use server";
 
-import { UpdateProfilePayload, Users } from "@/app/types";
+import { UpdateProfilePayload } from "@/app/types";
 import { notFound } from "next/navigation";
+import { getToken } from "../core/server";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
 export const getAllUsers = async () => {
+  const token = await getToken();
   const res = await fetch(`${BASE_URL}/users`, {
     cache: "no-store",
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
   });
   if (!res.ok) {
     notFound();
@@ -17,10 +22,12 @@ export const getAllUsers = async () => {
 };
 
 export const updateUserRole = async (id: string, newRole: string) => {
+  const token = await getToken();
   const res = await fetch(`${BASE_URL}/users/${id}/role`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ role: newRole }),
   });
