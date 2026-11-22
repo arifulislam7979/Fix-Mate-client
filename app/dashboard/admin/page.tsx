@@ -244,144 +244,146 @@ export default async function AdminPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary mb-1">
-            <ShieldCheck className="h-4 w-4" />
-            <span>Admin Overview</span>
+    <div className="min-h-full rounded-3xl bg-[#EBECE4]/65 p-4 sm:p-6">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-border/70 bg-[#E2E1D8]/75 px-5 py-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary mb-1">
+              <ShieldCheck className="h-4 w-4" />
+              <span>Admin Overview</span>
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Platform Control Center
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Monitor users, technician service approvals, bookings, and platform
+              revenue.
+            </p>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Platform Control Center
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Monitor users, technician service approvals, bookings, and platform
-            revenue.
-          </p>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Link href="/dashboard/admin/services">
-            <Button variant="outline" className="rounded-xl cursor-pointer">
-              Review Pending Services ({pendingServices})
-            </Button>
-          </Link>
-          <Link href="/dashboard/admin/transactions">
-            <Button className="rounded-xl cursor-pointer">
-              Transactions
-              <ArrowUpRight className="ml-1.5 h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Required Overview Stats: Total Users, Total Technicians, Pending Services */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {primaryStats.map((card) => {
-          const Icon = card.icon;
-          return (
-            <Link
-              key={card.title}
-              href={card.href}
-              className="group rounded-2xl border border-border bg-card p-5 shadow-xs space-y-3 transition-colors hover:border-primary/50"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-muted-foreground">
-                  {card.title}
-                </span>
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold tracking-tight">
-                {card.value}
-              </div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{card.subtitle}</span>
-                <ArrowUpRight className="h-4 w-4 opacity-70 group-hover:opacity-100 transition-opacity" />
-              </div>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Link href="/dashboard/admin/services">
+              <Button variant="outline" className="rounded-xl cursor-pointer bg-[#EBECE4]">
+                Review Pending Services ({pendingServices})
+              </Button>
             </Link>
-          );
-        })}
-      </div>
-
-      {/* Additional Quick Summary Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {secondaryStats.map((card) => {
-          const Icon = card.icon;
-          return (
-            <Link
-              key={card.title}
-              href={card.href}
-              className="group rounded-2xl border border-border bg-card p-5 shadow-xs space-y-3 transition-colors hover:border-primary/50"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-muted-foreground">
-                  {card.title}
-                </span>
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-foreground">
-                  <Icon className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold tracking-tight">
-                {card.value}
-              </div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{card.subtitle}</span>
-                <ArrowUpRight className="h-4 w-4 opacity-70 group-hover:opacity-100 transition-opacity" />
-              </div>
+            <Link href="/dashboard/admin/transactions">
+              <Button className="rounded-xl cursor-pointer">
+                Transactions
+                <ArrowUpRight className="ml-1.5 h-4 w-4" />
+              </Button>
             </Link>
-          );
-        })}
-      </div>
-
-      {/* Management Shortcuts */}
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-4">
-        <div className="border-b border-border/70 pb-3">
-          <h2 className="text-base font-bold">Quick Administration</h2>
-          <p className="text-xs text-muted-foreground">
-            Jump directly to core admin management sections
-          </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
-          <Link
-            href="/dashboard/admin/users"
-            className="rounded-xl border border-border/70 bg-muted/25 p-4 hover:bg-muted/40 transition-colors"
-          >
-            <p className="font-semibold">Manage Users</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              View accounts & update roles
+        {/* Required Overview Stats: Total Users, Total Technicians, Pending Services */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {primaryStats.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Link
+                key={card.title}
+                href={card.href}
+                className="group rounded-2xl border border-border bg-[#EBECE4]/90 p-5 shadow-xs space-y-3 transition-colors hover:border-primary/50"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    {card.title}
+                  </span>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Icon className="h-4 w-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold tracking-tight">
+                  {card.value}
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{card.subtitle}</span>
+                  <ArrowUpRight className="h-4 w-4 opacity-70 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Additional Quick Summary Cards */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {secondaryStats.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Link
+                key={card.title}
+                href={card.href}
+                className="group rounded-2xl border border-border bg-[#EBECE4]/90 p-5 shadow-xs space-y-3 transition-colors hover:border-primary/50"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    {card.title}
+                  </span>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E2E1D8] text-foreground">
+                    <Icon className="h-4 w-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold tracking-tight">
+                  {card.value}
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{card.subtitle}</span>
+                  <ArrowUpRight className="h-4 w-4 opacity-70 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Management Shortcuts */}
+        <div className="rounded-2xl border border-border bg-[#EBECE4]/90 p-6 shadow-xs space-y-4">
+          <div className="border-b border-border/70 pb-3">
+            <h2 className="text-base font-bold">Quick Administration</h2>
+            <p className="text-xs text-muted-foreground">
+              Jump directly to core admin management sections
             </p>
-          </Link>
-          <Link
-            href="/dashboard/admin/services"
-            className="rounded-xl border border-border/70 bg-muted/25 p-4 hover:bg-muted/40 transition-colors"
-          >
-            <p className="font-semibold">Service Approval</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Approve or reject pending listings
-            </p>
-          </Link>
-          <Link
-            href="/dashboard/admin/bookings"
-            className="rounded-xl border border-border/70 bg-muted/25 p-4 hover:bg-muted/40 transition-colors"
-          >
-            <p className="font-semibold">All Bookings</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Track repair job statuses
-            </p>
-          </Link>
-          <Link
-            href="/dashboard/admin/transactions"
-            className="rounded-xl border border-border/70 bg-muted/25 p-4 hover:bg-muted/40 transition-colors"
-          >
-            <p className="font-semibold">Transactions</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Inspect Stripe payment records
-            </p>
-          </Link>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+            <Link
+              href="/dashboard/admin/users"
+              className="rounded-xl border border-border/70 bg-[#E2E1D8]/70 p-4 hover:bg-[#E2E1D8] transition-colors"
+            >
+              <p className="font-semibold">Manage Users</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                View accounts & update roles
+              </p>
+            </Link>
+            <Link
+              href="/dashboard/admin/services"
+              className="rounded-xl border border-border/70 bg-[#E2E1D8]/70 p-4 hover:bg-[#E2E1D8] transition-colors"
+            >
+              <p className="font-semibold">Service Approval</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Approve or reject pending listings
+              </p>
+            </Link>
+            <Link
+              href="/dashboard/admin/bookings"
+              className="rounded-xl border border-border/70 bg-[#E2E1D8]/70 p-4 hover:bg-[#E2E1D8] transition-colors"
+            >
+              <p className="font-semibold">All Bookings</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Track repair job statuses
+              </p>
+            </Link>
+            <Link
+              href="/dashboard/admin/transactions"
+              className="rounded-xl border border-border/70 bg-[#E2E1D8]/70 p-4 hover:bg-[#E2E1D8] transition-colors"
+            >
+              <p className="font-semibold">Transactions</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Inspect Stripe payment records
+              </p>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

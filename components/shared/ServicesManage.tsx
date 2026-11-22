@@ -69,7 +69,6 @@ export default function ServicesManage({
     setDeleteModalOpen(true);
   };
 
-  
   const confirmDeleteService = async () => {
     if (!selectedServiceId) return;
 
@@ -95,23 +94,23 @@ export default function ServicesManage({
 
   return (
     <>
-      <Card className="rounded-2xl border-border/70 shadow-xs bg-card">
-        <CardHeader>
+      <Card className="rounded-2xl border border-[#C2C0B1] shadow-xs bg-[#EBECE4]">
+        <CardHeader className="bg-[#E2E1D8] rounded-t-2xl border-b border-[#C2C0B1]">
           <CardTitle className="text-lg">All Platform Services</CardTitle>
           <CardDescription>
             Review and control all services published by technicians.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-5">
           {services.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground text-sm">
+            <div className="text-center py-10 text-muted-foreground text-sm rounded-xl border border-dashed border-[#C2C0B1] bg-[#E2E1D8]/50">
               No services found.
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-xl border border-[#C2C0B1] bg-[#EBECE4]">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <tr className="border-b border-[#C2C0B1] bg-[#E2E1D8] text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     <th className="py-3 px-4">Service</th>
                     <th className="py-3 px-4">Category</th>
                     <th className="py-3 px-4">Price</th>
@@ -119,7 +118,7 @@ export default function ServicesManage({
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60 text-sm">
+                <tbody className="divide-y divide-[#C2C0B1] text-sm">
                   {services.map((service) => {
                     const status = service.approvalStatus || "pending";
                     const isProcessing = actionLoading === service._id;
@@ -127,11 +126,11 @@ export default function ServicesManage({
                     return (
                       <tr
                         key={service._id}
-                        className="hover:bg-muted/50 transition-colors"
+                        className="hover:bg-[#E2E1D8]/65 transition-colors"
                       >
                         {/* Service Title & Image */}
                         <td className="py-3.5 px-4 font-medium flex items-center gap-3">
-                          <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-muted shrink-0">
+                          <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-[#E2E1D8] border border-[#C2C0B1] shrink-0">
                             <Image
                               src={service.image || "/placeholder.png"}
                               alt={service.title}
@@ -169,27 +168,27 @@ export default function ServicesManage({
                             }
                             className={`text-xs font-semibold rounded-lg border px-3 py-1.5 focus:outline-none focus:ring-2 cursor-pointer transition-colors ${
                               status === "approved"
-                                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 focus:ring-emerald-500"
+                                ? "bg-emerald-500/10 border-emerald-500/35 text-emerald-700 focus:ring-emerald-500"
                                 : status === "rejected"
-                                  ? "bg-red-500/15 border-red-500/40 text-red-600 focus:ring-red-500"
-                                  : "bg-amber-500/10 border-amber-500/30 text-amber-600 focus:ring-amber-500"
+                                  ? "bg-red-500/15 border-red-500/45 text-red-700 focus:ring-red-500"
+                                  : "bg-amber-500/10 border-amber-500/35 text-amber-700 focus:ring-amber-500"
                             }`}
                           >
                             <option
                               value="pending"
-                              className="bg-background text-foreground"
+                              className="bg-[#EBECE4] text-foreground"
                             >
                               Pending
                             </option>
                             <option
                               value="approved"
-                              className="bg-background text-foreground"
+                              className="bg-[#EBECE4] text-foreground"
                             >
                               Approved
                             </option>
                             <option
                               value="rejected"
-                              className="bg-background text-foreground"
+                              className="bg-[#EBECE4] text-foreground"
                             >
                               Rejected
                             </option>
@@ -203,7 +202,7 @@ export default function ServicesManage({
                             size="icon"
                             disabled={isProcessing}
                             onClick={() => openDeleteModal(service._id)}
-                            className="h-8 w-8 text-destructive hover:bg-destructive/10 rounded-lg hover:cursor-pointer hover:text-red-500"
+                            className="h-8 w-8 text-destructive border border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 rounded-lg hover:cursor-pointer hover:text-red-500"
                             title="Delete Service"
                           >
                             {isProcessing ? (
@@ -226,9 +225,9 @@ export default function ServicesManage({
       {/* Delete Confirmation Popup Modal */}
       {deleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-lg space-y-4">
+          <div className="bg-[#EBECE4] border-2 border-[#B8B5A5] rounded-2xl p-6 max-w-md w-full shadow-lg space-y-4">
             <div className="flex items-center gap-3 text-destructive">
-              <div className="p-3 bg-destructive/10 rounded-full">
+              <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-full">
                 <AlertTriangle className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-bold">Delete this service?</h3>
@@ -244,7 +243,7 @@ export default function ServicesManage({
                   setDeleteModalOpen(false);
                   setSelectedServiceId(null);
                 }}
-                className="rounded-xl"
+                className="rounded-xl bg-[#E2E1D8] border-[#B8B5A5]"
               >
                 Cancel
               </Button>

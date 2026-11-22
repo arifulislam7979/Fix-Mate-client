@@ -36,18 +36,20 @@ const CustomerBookings = async ({
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 rounded-3xl border border-[#C2C0B1] bg-[#EBECE4] p-4 sm:p-6 shadow-xs">
       {/* Page Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[#C2C0B1] bg-[#E2E1D8]/85 px-5 py-4 shadow-2xs">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">My Bookings</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            My Bookings
+          </h1>
           <p className="text-sm text-muted-foreground">
             Track your repair requests, cancel pending requests, and pay after
             completion.
           </p>
         </div>
-        <Link href="/services">
-          <Button className="rounded-xl cursor-pointer">
+        <Link href="/services" className="shrink-0">
+          <Button className="rounded-xl cursor-pointer font-semibold shadow-xs">
             <Wrench className="mr-2 h-4 w-4" />
             Browse Services
           </Button>

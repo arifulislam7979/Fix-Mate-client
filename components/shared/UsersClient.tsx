@@ -83,23 +83,23 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
 
   return (
     <>
-      <Card className="rounded-2xl border-border/70 shadow-xs bg-card">
-        <CardHeader>
+      <Card className="rounded-2xl border border-[#C2C0B1] shadow-xs bg-[#EBECE4]">
+        <CardHeader className="bg-[#E2E1D8] rounded-t-2xl border-b border-[#C2C0B1]">
           <CardTitle className="text-lg">All Registered Users</CardTitle>
           <CardDescription>
             Control user permissions and account statuses.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-5">
           {users.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground text-sm">
+            <div className="text-center py-10 text-muted-foreground text-sm rounded-xl border border-dashed border-[#C2C0B1] bg-[#E2E1D8]/50">
               No users found.
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-xl border border-[#C2C0B1] bg-[#EBECE4]">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <tr className="border-b border-[#C2C0B1] bg-[#E2E1D8] text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     <th className="py-3 px-4">Name</th>
                     <th className="py-3 px-4">Email</th>
                     <th className="py-3 px-4">Role</th>
@@ -107,7 +107,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60 text-sm">
+                <tbody className="divide-y divide-[#C2C0B1] text-sm">
                   {users.map((user) => {
                     const userId = user._id || user.id!;
                     const role = user.role || "customer";
@@ -118,17 +118,17 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                     return (
                       <tr
                         key={userId}
-                        className="hover:bg-muted/50 transition-colors"
+                        className="hover:bg-[#E2E1D8]/65 transition-colors"
                       >
                         <td className="py-3.5 px-4 font-medium flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                          <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/25 flex items-center justify-center text-primary font-bold text-xs">
                             {user.name
                               ? user.name.charAt(0).toUpperCase()
                               : "U"}
                           </div>
                           {user.name || "N/A"}{" "}
                           {isMainAdmin && (
-                            <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded ml-1">
+                            <span className="text-[10px] bg-[#E2E1D8] border border-[#B8B5A5] text-primary px-1.5 py-0.5 rounded ml-1">
                               You
                             </span>
                           )}
@@ -146,31 +146,31 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                             }
                             className={`text-xs font-semibold rounded-lg border px-3 py-1.5 focus:outline-none focus:ring-2 transition-colors ${
                               isMainAdmin
-                                ? "opacity-60 cursor-not-allowed bg-muted"
+                                ? "opacity-70 cursor-not-allowed bg-[#E2E1D8] border-[#B8B5A5]"
                                 : "cursor-pointer"
                             } ${
                               role === "admin"
-                                ? "bg-purple-500/10 border-purple-500/30 text-purple-600 focus:ring-purple-500"
+                                ? "bg-purple-500/10 border-purple-500/45 text-purple-700 focus:ring-purple-500"
                                 : role === "technician"
-                                  ? "bg-amber-500/10 border-amber-500/30 text-amber-600 focus:ring-amber-500"
-                                  : "bg-blue-500/10 border-blue-500/30 text-blue-600 focus:ring-blue-500"
+                                  ? "bg-amber-500/10 border-amber-500/45 text-amber-700 focus:ring-amber-500"
+                                  : "bg-blue-500/10 border-blue-500/45 text-blue-700 focus:ring-blue-500"
                             }`}
                           >
                             <option
                               value="customer"
-                              className="bg-background text-foreground"
+                              className="bg-[#EBECE4] text-foreground"
                             >
                               Customer
                             </option>
                             <option
                               value="technician"
-                              className="bg-background text-foreground"
+                              className="bg-[#EBECE4] text-foreground"
                             >
                               Technician
                             </option>
                             <option
                               value="admin"
-                              className="bg-background text-foreground"
+                              className="bg-[#EBECE4] text-foreground"
                             >
                               Admin
                             </option>
@@ -180,7 +180,11 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                         {/* Status */}
                         <td className="py-3.5 px-4">
                           <span
-                            className={`inline-flex items-center gap-1 text-xs font-medium ${isVerified ? "text-emerald-600" : "text-amber-600"}`}
+                            className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-medium ${
+                              isVerified
+                                ? "bg-emerald-500/10 border-emerald-500/35 text-emerald-700"
+                                : "bg-amber-500/10 border-amber-500/35 text-amber-700"
+                            }`}
                           >
                             {isVerified ? (
                               <CheckCircle2 className="h-3.5 w-3.5" />
@@ -201,7 +205,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                                 setSelectedUserId(userId);
                                 setDeleteModalOpen(true);
                               }}
-                              className="h-8 w-8 text-destructive hover:bg-destructive/10 rounded-lg hover:cursor-pointer hover:text-red-500"
+                              className="h-8 w-8 text-destructive border border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 rounded-lg hover:cursor-pointer hover:text-red-500"
                               title="Delete / Suspend User"
                             >
                               {isProcessing ? (
@@ -225,9 +229,9 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
       {/* Custom Delete Confirmation Modal */}
       {deleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-lg space-y-4 animate-in fade-in zoom-in-95">
+          <div className="bg-[#EBECE4] border-2 border-[#B8B5A5] rounded-2xl p-6 max-w-md w-full shadow-lg space-y-4 animate-in fade-in zoom-in-95">
             <div className="flex items-center gap-3 text-destructive">
-              <div className="p-3 bg-destructive/10 rounded-full">
+              <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-full">
                 <AlertTriangle className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-bold">Are you absolutely sure?</h3>
@@ -243,7 +247,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                   setDeleteModalOpen(false);
                   setSelectedUserId(null);
                 }}
-                className="rounded-xl"
+                className="rounded-xl bg-[#E2E1D8] border-[#B8B5A5]"
               >
                 Cancel
               </Button>

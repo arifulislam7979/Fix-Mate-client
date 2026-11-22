@@ -30,27 +30,27 @@ const statusStyleMap: Record<
 > = {
   requested: {
     label: "Requested",
-    className: "bg-blue-500/10 text-blue-700 border-blue-500/30",
+    className: "bg-blue-500/15 text-blue-700 border-blue-500/35",
   },
   accepted: {
     label: "Accepted",
-    className: "bg-indigo-500/10 text-indigo-700 border-indigo-500/30",
+    className: "bg-indigo-500/15 text-indigo-700 border-indigo-500/35",
   },
   "in-progress": {
     label: "In Progress",
-    className: "bg-amber-500/10 text-amber-700 border-amber-500/30",
+    className: "bg-amber-500/15 text-amber-700 border-amber-500/35",
   },
   completed: {
     label: "Completed",
-    className: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30",
+    className: "bg-emerald-500/15 text-emerald-700 border-emerald-500/35",
   },
   rejected: {
     label: "Rejected",
-    className: "bg-red-500/10 text-red-700 border-red-500/30",
+    className: "bg-rose-500/15 text-rose-700 border-rose-500/35",
   },
   cancelled: {
     label: "Cancelled",
-    className: "bg-zinc-500/10 text-zinc-700 border-zinc-500/30",
+    className: "bg-slate-500/15 text-slate-700 border-slate-500/35",
   },
 };
 
@@ -60,8 +60,8 @@ type RequestFilterStatus =
   | "accepted"
   | "in-progress"
   | "completed"
-  | 'rejected'
-  | 'canceled';
+  | "rejected"
+  | "canceled";
 
 const STATUS_TABS: Array<{ key: RequestFilterStatus; label: string }> = [
   { key: "all", label: "All" },
@@ -101,7 +101,7 @@ export default function TechnicianRequestsClient({
     .toLowerCase();
 
   const normalizedStatus: RequestFilterStatus = STATUS_TABS.some(
-    (t) => t.key === (initialStatus || "all").toLowerCase()
+    (t) => t.key === (initialStatus || "all").toLowerCase(),
   )
     ? ((initialStatus || "all").toLowerCase() as RequestFilterStatus)
     : "all";
@@ -114,7 +114,7 @@ export default function TechnicianRequestsClient({
   const [submittingId, setSubmittingId] = useState<string | null>(null);
 
   const [rejectTarget, setRejectTarget] = useState<RepairRequestBooking | null>(
-    null
+    null,
   );
   const [completeTarget, setCompleteTarget] =
     useState<RepairRequestBooking | null>(null);
@@ -123,7 +123,7 @@ export default function TechnicianRequestsClient({
   const [prevInitialBookings, setPrevInitialBookings] =
     useState<RepairRequestBooking[]>(initialBookings);
   const [prevSyncKey, setPrevSyncKey] = useState<string>(
-    `${normalizedStatus}::${initialSearch}`
+    `${normalizedStatus}::${initialSearch}`,
   );
 
   if (initialBookings !== prevInitialBookings) {
@@ -138,7 +138,10 @@ export default function TechnicianRequestsClient({
     setSearchTerm(initialSearch);
   }
 
-  const syncServerQuery = (nextStatus: RequestFilterStatus, nextSearch: string) => {
+  const syncServerQuery = (
+    nextStatus: RequestFilterStatus,
+    nextSearch: string,
+  ) => {
     const params = new URLSearchParams(searchParams.toString());
 
     if (nextStatus === "all") {
@@ -176,7 +179,7 @@ export default function TechnicianRequestsClient({
   const updateBookingStatus = async (
     bookingId: string,
     nextStatus: BookingStatus,
-    finalAmount?: number
+    finalAmount?: number,
   ) => {
     try {
       setSubmittingId(bookingId);
@@ -205,8 +208,8 @@ export default function TechnicianRequestsClient({
                       ? finalAmount
                       : b.finalAmount,
               }
-            : b
-        )
+            : b,
+        ),
       );
 
       router.refresh();
@@ -258,11 +261,11 @@ export default function TechnicianRequestsClient({
     const ok = await updateBookingStatus(
       completeTarget._id,
       "completed",
-      numericAmount
+      numericAmount,
     );
     if (ok) {
       toast.success(
-        `Job marked completed with final amount $${numericAmount.toFixed(2)}`
+        `Job marked completed with final amount $${numericAmount.toFixed(2)}`,
       );
       setCompleteTarget(null);
       setFinalAmountInput("");
@@ -288,8 +291,8 @@ export default function TechnicianRequestsClient({
             variant="outline"
             className={
               booking.paymentStatus === "paid"
-                ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 text-[11px]"
-                : "bg-amber-500/10 text-amber-700 border-amber-500/30 text-[11px]"
+                ? "bg-emerald-500/15 text-emerald-700 border-emerald-500/35 text-[11px]"
+                : "bg-amber-500/15 text-amber-700 border-amber-500/35 text-[11px]"
             }
           >
             {booking.paymentStatus === "paid" ? "Paid" : "Unpaid"}
@@ -301,7 +304,7 @@ export default function TechnicianRequestsClient({
 
   const renderActionButtons = (
     booking: RepairRequestBooking,
-    fullWidthMobile = false
+    fullWidthMobile = false,
   ) => {
     const isRowBusy = submittingId === booking._id;
 
@@ -315,7 +318,7 @@ export default function TechnicianRequestsClient({
           <Button
             size="sm"
             disabled={isRowBusy}
-            className={`h-8 px-3 rounded-lg cursor-pointer ${
+            className={`h-8 px-3 rounded-lg cursor-pointer font-semibold ${
               fullWidthMobile ? "flex-1" : ""
             }`}
             onClick={() => handleAccept(booking._id)}
@@ -331,7 +334,7 @@ export default function TechnicianRequestsClient({
             size="sm"
             variant="outline"
             disabled={isRowBusy}
-            className={`h-8 px-3 rounded-lg text-red-700 hover:bg-red-500/10 cursor-pointer ${
+            className={`h-8 px-3 rounded-lg bg-[#EBECE4] border-[#C2C0B1] text-rose-700 hover:bg-rose-500/15 hover:border-rose-500/35 cursor-pointer ${
               fullWidthMobile ? "flex-1" : ""
             }`}
             onClick={() => setRejectTarget(booking)}
@@ -348,7 +351,7 @@ export default function TechnicianRequestsClient({
         <Button
           size="sm"
           disabled={isRowBusy}
-          className={`h-8 px-3 rounded-lg cursor-pointer ${
+          className={`h-8 px-3 rounded-lg cursor-pointer font-semibold ${
             fullWidthMobile ? "w-full" : ""
           }`}
           onClick={() => handleStartWork(booking._id)}
@@ -368,7 +371,7 @@ export default function TechnicianRequestsClient({
         <Button
           size="sm"
           disabled={isRowBusy}
-          className={`h-8 px-3 rounded-lg cursor-pointer ${
+          className={`h-8 px-3 rounded-lg cursor-pointer font-semibold ${
             fullWidthMobile ? "w-full" : ""
           }`}
           onClick={() => openCompleteModal(booking)}
@@ -386,7 +389,8 @@ export default function TechnicianRequestsClient({
 
   return (
     <div className="space-y-4 sm:space-y-6 px-1 sm:px-0">
-      <div>
+      {/* Header */}
+      <div className="rounded-2xl border border-[#C2C0B1] bg-[#E2E1D8]/85 px-5 py-4 shadow-2xs">
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
           Manage Repair Requests ({bookings.length})
         </h1>
@@ -396,20 +400,27 @@ export default function TechnicianRequestsClient({
       </div>
 
       {/* Server-side Filter & Search Controls */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1">
-          {STATUS_TABS.map((tab) => (
-            <Button
-              key={tab.key}
-              type="button"
-              size="sm"
-              variant={selectedStatus === tab.key ? "default" : "outline"}
-              onClick={() => handleStatusSelect(tab.key)}
-              className="rounded-xl cursor-pointer shrink-0 text-xs sm:text-sm"
-            >
-              {tab.label}
-            </Button>
-          ))}
+      <div className="rounded-2xl border border-[#C2C0B1] bg-[#E2E1D8]/80 p-3.5 sm:p-4 shadow-2xs flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 md:pb-0">
+          {STATUS_TABS.map((tab) => {
+            const isActive = selectedStatus === tab.key;
+            return (
+              <Button
+                key={tab.key}
+                type="button"
+                size="sm"
+                variant={isActive ? "default" : "outline"}
+                onClick={() => handleStatusSelect(tab.key)}
+                className={`rounded-xl cursor-pointer shrink-0 text-xs sm:text-sm font-semibold ${
+                  isActive
+                    ? "shadow-2xs"
+                    : "bg-[#EBECE4] border-[#C2C0B1] text-muted-foreground hover:bg-[#E2E1D8] hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </Button>
+            );
+          })}
         </div>
 
         <form
@@ -423,7 +434,7 @@ export default function TechnicianRequestsClient({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search service, customer, phone..."
-              className="pl-9 pr-8 rounded-xl text-xs sm:text-sm"
+              className="pl-9 pr-8 h-9 rounded-xl border border-[#C2C0B1] bg-[#EBECE4] text-foreground placeholder:text-muted-foreground/80 text-xs sm:text-sm focus-visible:bg-[#EBECE4] focus-visible:ring-2 focus-visible:ring-primary/30"
             />
             {searchTerm && (
               <button
@@ -439,18 +450,18 @@ export default function TechnicianRequestsClient({
           <Button
             type="submit"
             size="sm"
-            className="rounded-xl cursor-pointer shrink-0"
+            className="h-9 rounded-xl cursor-pointer shrink-0 font-semibold"
           >
             Search
           </Button>
         </form>
       </div>
 
-      <Card className="rounded-2xl border-border/70">
-        <CardContent className="p-4 sm:p-6">
+      <Card className="rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] shadow-xs overflow-hidden">
+        <CardContent className="p-4 sm:p-6 bg-[#EBECE4]">
           {bookings.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border py-10 sm:py-12 px-4 text-center space-y-2">
-              <p className="text-sm font-medium text-foreground">
+            <div className="rounded-xl border border-dashed border-[#C2C0B1] bg-[#E2E1D8]/55 py-10 sm:py-12 px-4 text-center space-y-2">
+              <p className="text-sm font-semibold text-foreground">
                 No repair requests found
               </p>
               <p className="text-xs text-muted-foreground max-w-md mx-auto">
@@ -461,7 +472,7 @@ export default function TechnicianRequestsClient({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="mt-2 rounded-xl cursor-pointer"
+                  className="mt-2 rounded-xl cursor-pointer bg-[#EBECE4] border-[#C2C0B1] hover:bg-[#E2E1D8] text-foreground"
                   onClick={() => {
                     setSelectedStatus("all");
                     setSearchTerm("");
@@ -485,10 +496,10 @@ export default function TechnicianRequestsClient({
                   return (
                     <div
                       key={booking._id}
-                      className="rounded-xl border border-border/80 bg-card p-4 space-y-3 shadow-xs flex flex-col justify-between"
+                      className="rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] shadow-xs flex flex-col justify-between overflow-hidden"
                     >
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="p-3.5 bg-[#E2E1D8]/65 border-b border-[#C2C0B1] flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <h3 className="font-semibold text-sm text-foreground break-words">
                               {booking.serviceTitle}
@@ -505,44 +516,46 @@ export default function TechnicianRequestsClient({
                           </div>
                         </div>
 
-                        <p className="text-xs text-muted-foreground flex items-start gap-1.5 break-words">
-                          <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
-                          <span>{booking.problemDescription}</span>
-                        </p>
+                        <div className="p-3.5 space-y-2.5">
+                          <p className="text-xs text-muted-foreground flex items-start gap-1.5 break-words">
+                            <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                            <span>{booking.problemDescription}</span>
+                          </p>
 
-                        <div className="space-y-1.5 text-xs text-foreground/85 border-t border-border/60 pt-2.5">
-                          <div className="flex items-center gap-1.5">
-                            <Phone className="h-3.5 w-3.5 text-primary shrink-0" />
-                            <span className="break-words">
-                              {booking.customerPhone}
-                            </span>
-                          </div>
-                          <div className="flex items-start gap-1.5">
-                            <MapPin className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                            <span className="break-words">
-                              {booking.address}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between pt-0.5">
-                            <span className="flex items-center gap-1.5 text-muted-foreground">
-                              <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
-                              <span>{formatDate(booking.preferredDate)}</span>
-                            </span>
-                            <div className="text-right">
-                              <span className="font-bold text-sm text-foreground">
-                                ${displayAmount.toFixed(2)}
+                          <div className="space-y-1.5 text-xs text-foreground/85 border-t border-[#C2C0B1] pt-2.5">
+                            <div className="flex items-center gap-1.5">
+                              <Phone className="h-3.5 w-3.5 text-primary shrink-0" />
+                              <span className="break-words">
+                                {booking.customerPhone}
                               </span>
-                              <span className="block text-[10px] text-muted-foreground">
-                                {booking.status === "completed"
-                                  ? "Final"
-                                  : "Base Price"}
+                            </div>
+                            <div className="flex items-start gap-1.5">
+                              <MapPin className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                              <span className="break-words">
+                                {booking.address}
                               </span>
+                            </div>
+                            <div className="flex items-center justify-between pt-0.5">
+                              <span className="flex items-center gap-1.5 text-muted-foreground">
+                                <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
+                                <span>{formatDate(booking.preferredDate)}</span>
+                              </span>
+                              <div className="text-right">
+                                <span className="font-bold text-sm text-foreground">
+                                  ${displayAmount.toFixed(2)}
+                                </span>
+                                <span className="block text-[10px] text-muted-foreground">
+                                  {booking.status === "completed"
+                                    ? "Final"
+                                    : "Base Price"}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="pt-2 border-t border-border/60">
+                      <div className="px-3.5 py-3 bg-[#E2E1D8]/45 border-t border-[#C2C0B1]">
                         {renderActionButtons(booking, true)}
                       </div>
                     </div>
@@ -551,31 +564,31 @@ export default function TechnicianRequestsClient({
               </div>
 
               {/* Desktop Table View */}
-              <div className="hidden md:block overflow-x-auto">
+              <div className="hidden md:block overflow-x-auto rounded-xl border border-[#C2C0B1]">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-border/70 text-xs uppercase text-muted-foreground">
-                      <th className="py-3 px-3">Customer & Contact</th>
-                      <th className="py-3 px-3">Service & Problem</th>
-                      <th className="py-3 px-3">Address & Date</th>
-                      <th className="py-3 px-3">Amount</th>
-                      <th className="py-3 px-3">Status</th>
-                      <th className="py-3 px-3 text-right">Actions</th>
+                    <tr className="border-b border-[#C2C0B1] bg-[#E2E1D8]/85 text-xs uppercase text-muted-foreground font-semibold tracking-wider">
+                      <th className="py-3.5 px-3">Customer &amp; Contact</th>
+                      <th className="py-3.5 px-3">Service &amp; Problem</th>
+                      <th className="py-3.5 px-3">Address &amp; Date</th>
+                      <th className="py-3.5 px-3">Amount</th>
+                      <th className="py-3.5 px-3">Status</th>
+                      <th className="py-3.5 px-3 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/60 text-sm align-top">
+                  <tbody className="divide-y divide-[#C2C0B1] text-sm align-top bg-[#EBECE4]">
                     {bookings.map((booking) => {
                       const displayAmount =
                         booking.status === "completed"
                           ? Number(
-                              booking.finalAmount ?? booking.basePrice ?? 0
+                              booking.finalAmount ?? booking.basePrice ?? 0,
                             )
                           : Number(booking.basePrice ?? 0);
 
                       return (
                         <tr
                           key={booking._id}
-                          className="hover:bg-muted/40 transition-colors"
+                          className="hover:bg-[#E2E1D8]/45 transition-colors"
                         >
                           <td className="py-4 px-3 min-w-[175px]">
                             <div className="font-semibold text-foreground">
@@ -612,7 +625,7 @@ export default function TechnicianRequestsClient({
                           </td>
 
                           <td className="py-4 px-3 whitespace-nowrap">
-                            <div className="font-semibold text-foreground">
+                            <div className="font-bold text-foreground">
                               ${displayAmount.toFixed(2)}
                             </div>
                             <div className="text-[11px] text-muted-foreground">
@@ -642,21 +655,21 @@ export default function TechnicianRequestsClient({
 
       {/* Reject Confirmation Modal */}
       {rejectTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 sm:p-4">
-          <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border-border bg-card shadow-xl">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-base sm:text-lg font-bold">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-xs p-3 sm:p-4">
+          <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] shadow-xl p-0">
+            <CardHeader className="flex flex-row items-center justify-between px-5 py-4 bg-[#E2E1D8]/80 border-b border-[#C2C0B1]">
+              <CardTitle className="text-base sm:text-lg font-bold text-foreground">
                 Reject Repair Request?
               </CardTitle>
               <button
                 type="button"
                 onClick={() => setRejectTarget(null)}
-                className="rounded-lg p-1 text-muted-foreground hover:bg-muted cursor-pointer"
+                className="rounded-lg p-1 text-muted-foreground hover:bg-[#EBECE4] hover:text-foreground cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-5 space-y-4 bg-[#EBECE4]">
               <p className="text-xs sm:text-sm text-muted-foreground">
                 Are you sure you want to reject{" "}
                 <strong className="text-foreground">
@@ -673,7 +686,7 @@ export default function TechnicianRequestsClient({
                   type="button"
                   variant="outline"
                   disabled={submittingId === rejectTarget._id}
-                  className="rounded-xl cursor-pointer w-full sm:w-auto"
+                  className="rounded-xl cursor-pointer w-full sm:w-auto bg-[#E2E1D8]/75 border-[#C2C0B1] hover:bg-[#E2E1D8] text-foreground"
                   onClick={() => setRejectTarget(null)}
                 >
                   Cancel
@@ -697,11 +710,11 @@ export default function TechnicianRequestsClient({
 
       {/* Mark Completed Modal */}
       {completeTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 sm:p-4">
-          <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border-border bg-card shadow-xl">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-base sm:text-lg font-bold">
-                Complete Job & Set Final Amount
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-xs p-3 sm:p-4">
+          <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] shadow-xl p-0">
+            <CardHeader className="flex flex-row items-center justify-between px-5 py-4 bg-[#E2E1D8]/80 border-b border-[#C2C0B1]">
+              <CardTitle className="text-base sm:text-lg font-bold text-foreground">
+                Complete Job &amp; Set Final Amount
               </CardTitle>
               <button
                 type="button"
@@ -709,14 +722,14 @@ export default function TechnicianRequestsClient({
                   setCompleteTarget(null);
                   setFinalAmountInput("");
                 }}
-                className="rounded-lg p-1 text-muted-foreground hover:bg-muted cursor-pointer"
+                className="rounded-lg p-1 text-muted-foreground hover:bg-[#EBECE4] hover:text-foreground cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-5 bg-[#EBECE4]">
               <form onSubmit={confirmComplete} className="space-y-4">
-                <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
+                <div className="text-xs sm:text-sm text-muted-foreground space-y-1 rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 p-3">
                   <p>
                     Service:{" "}
                     <strong className="text-foreground">
@@ -746,7 +759,7 @@ export default function TechnicianRequestsClient({
                     required
                     value={finalAmountInput}
                     onChange={(e) => setFinalAmountInput(e.target.value)}
-                    className="rounded-xl"
+                    className="rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 text-foreground focus-visible:bg-[#EBECE4] focus-visible:ring-2 focus-visible:ring-primary/30"
                   />
                 </div>
 
@@ -755,7 +768,7 @@ export default function TechnicianRequestsClient({
                     type="button"
                     variant="outline"
                     disabled={submittingId === completeTarget._id}
-                    className="rounded-xl cursor-pointer w-full sm:w-auto"
+                    className="rounded-xl cursor-pointer w-full sm:w-auto bg-[#E2E1D8]/75 border-[#C2C0B1] hover:bg-[#E2E1D8] text-foreground"
                     onClick={() => {
                       setCompleteTarget(null);
                       setFinalAmountInput("");
@@ -766,7 +779,7 @@ export default function TechnicianRequestsClient({
                   <Button
                     type="submit"
                     disabled={submittingId === completeTarget._id}
-                    className="rounded-xl cursor-pointer w-full sm:w-auto"
+                    className="rounded-xl cursor-pointer w-full sm:w-auto font-semibold"
                   >
                     {submittingId === completeTarget._id
                       ? "Saving..."

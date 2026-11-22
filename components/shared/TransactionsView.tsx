@@ -31,15 +31,15 @@ function getPaymentStatusStyle(status: string): string {
     case "paid":
     case "completed":
     case "succeeded":
-      return "border-emerald-500/30 bg-emerald-500/15 text-emerald-700";
+      return "border-emerald-500/35 bg-emerald-500/15 text-emerald-700";
     case "pending":
-      return "border-amber-500/30 bg-amber-500/15 text-amber-700";
+      return "border-amber-500/35 bg-amber-500/15 text-amber-700";
     case "failed":
     case "refunded":
     case "cancelled":
-      return "border-rose-500/30 bg-rose-500/15 text-rose-700";
+      return "border-rose-500/35 bg-rose-500/15 text-rose-700";
     default:
-      return "border-border bg-muted/60 text-foreground";
+      return "border-[#C2C0B1] bg-[#E2E1D8] text-foreground";
   }
 }
 
@@ -102,7 +102,7 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-1 border-b border-border/60 pb-4">
+      <div className="flex flex-col gap-1 rounded-2xl border border-[#C2C0B1] bg-[#E2E1D8]/85 px-5 py-4 shadow-xs">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           All Transactions
         </h1>
@@ -114,12 +114,12 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs transition-all hover:border-border space-y-2.5">
+        <div className="rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] p-5 shadow-xs transition-all hover:border-[#B8B5A5] space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Total Paid Volume
             </span>
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-500/20">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-500/25">
               <CreditCard className="h-4 w-4" />
             </span>
           </div>
@@ -131,12 +131,12 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs transition-all hover:border-border space-y-2.5">
+        <div className="rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] p-5 shadow-xs transition-all hover:border-[#B8B5A5] space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Total Transactions
             </span>
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/15 text-sky-700 ring-1 ring-sky-500/20">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/15 text-sky-700 ring-1 ring-sky-500/25">
               <Receipt className="h-4 w-4" />
             </span>
           </div>
@@ -148,12 +148,12 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs transition-all hover:border-border space-y-2.5">
+        <div className="rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] p-5 shadow-xs transition-all hover:border-[#B8B5A5] space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Pending Payments
             </span>
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 ring-1 ring-amber-500/20">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 ring-1 ring-amber-500/25">
               <Clock className="h-4 w-4" />
             </span>
           </div>
@@ -167,7 +167,7 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
       </div>
 
       {/* Search & Status Filter */}
-      <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded-2xl border border-[#C2C0B1] bg-[#E2E1D8]/75 p-4 shadow-xs flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1">
           <Search className="h-4 w-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
@@ -175,26 +175,36 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by service, customer email, technician email, or transaction ID..."
-            className="w-full rounded-xl border border-border bg-background/70 pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/80 shadow-2xs transition-colors outline-none focus:border-primary focus:bg-background"
+            className="w-full rounded-xl border border-[#C2C0B1] bg-[#EBECE4] pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/80 shadow-2xs transition-colors outline-none focus:border-primary"
           />
         </div>
 
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-xl border border-border bg-background/70 px-4 py-2.5 text-sm font-medium text-foreground shadow-2xs transition-colors outline-none focus:border-primary focus:bg-background cursor-pointer"
+          className="rounded-xl border border-[#C2C0B1] bg-[#EBECE4] px-4 py-2.5 text-sm font-medium text-foreground shadow-2xs transition-colors outline-none focus:border-primary cursor-pointer"
         >
-          <option value="all">All Status</option>
-          <option value="paid">Paid</option>
-          <option value="pending">Pending</option>
-          <option value="refunded">Refunded</option>
-          <option value="failed">Failed</option>
+          <option value="all" className="bg-[#EBECE4]">
+            All Status
+          </option>
+          <option value="paid" className="bg-[#EBECE4]">
+            Paid
+          </option>
+          <option value="pending" className="bg-[#EBECE4]">
+            Pending
+          </option>
+          <option value="refunded" className="bg-[#EBECE4]">
+            Refunded
+          </option>
+          <option value="failed" className="bg-[#EBECE4]">
+            Failed
+          </option>
         </select>
       </div>
 
       {/* Empty State or List */}
       {filteredTransactions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card/60 px-6 py-12 text-center space-y-1.5">
+        <div className="rounded-2xl border border-dashed border-[#C2C0B1] bg-[#E2E1D8]/50 px-6 py-12 text-center space-y-1.5">
           <p className="text-base font-semibold text-foreground">
             No transactions found
           </p>
@@ -205,11 +215,11 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
       ) : (
         <>
           {/* Desktop Table */}
-          <div className="hidden md:block overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs">
+          <div className="hidden md:block overflow-hidden rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-border bg-muted/50 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <tr className="border-b border-[#C2C0B1] bg-[#E2E1D8] text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     <th className="py-3.5 px-4">Service</th>
                     <th className="py-3.5 px-4">Customer</th>
                     <th className="py-3.5 px-4">Technician</th>
@@ -219,11 +229,11 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
                     <th className="py-3.5 px-4 text-right">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60 text-sm">
+                <tbody className="divide-y divide-[#C2C0B1] text-sm">
                   {filteredTransactions.map((tx) => (
                     <tr
                       key={tx.id}
-                      className="hover:bg-muted/30 transition-colors"
+                      className="hover:bg-[#E2E1D8]/55 transition-colors"
                     >
                       <td className="py-3.5 px-4 font-semibold text-foreground">
                         {tx.serviceTitle}
@@ -235,7 +245,7 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
                         {tx.technicianEmail}
                       </td>
                       <td className="py-3.5 px-4 font-mono text-xs text-muted-foreground">
-                        <span className="rounded-md bg-muted/60 px-2 py-1">
+                        <span className="rounded-md border border-[#C2C0B1] bg-[#E2E1D8]/75 px-2 py-1">
                           {tx.transactionId}
                         </span>
                       </td>
@@ -270,7 +280,7 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
             {filteredTransactions.map((tx) => (
               <div
                 key={tx.id}
-                className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs space-y-3"
+                className="rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] p-4 shadow-xs space-y-3"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-0.5">
@@ -294,11 +304,11 @@ export default function TransactionsView({ transactions }: TransactionsViewProps
                   </span>
                 </div>
 
-                <p className="font-mono text-xs text-muted-foreground break-all rounded-lg bg-muted/50 px-2.5 py-1.5">
+                <p className="font-mono text-xs text-muted-foreground break-all rounded-lg border border-[#C2C0B1] bg-[#E2E1D8]/70 px-2.5 py-1.5">
                   Txn: {tx.transactionId}
                 </p>
 
-                <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs text-muted-foreground">
+                <div className="flex items-center justify-between pt-2 border-t border-[#C2C0B1] text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1.5">
                     <Calendar className="h-3.5 w-3.5" />
                     {tx.paidAt}

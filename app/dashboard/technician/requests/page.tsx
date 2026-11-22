@@ -46,20 +46,28 @@ async function TechnicianRequests({ searchParams }: RequestsPageProps) {
   }
 
   return (
-    <TechnicianRequestsClient
-      initialBookings={bookings}
-      initialTechnicianEmail={technicianEmail}
-      initialStatus={initialStatus}
-      initialSearch={initialSearch}
-    />
+    <div className="rounded-3xl border border-[#C2C0B1] bg-[#EBECE4] p-4 sm:p-6 shadow-xs">
+      <div className="rounded-2xl border border-[#C2C0B1] bg-[#E2E1D8]/55 p-3 sm:p-5">
+        <TechnicianRequestsClient
+          initialBookings={bookings}
+          initialTechnicianEmail={technicianEmail}
+          initialStatus={initialStatus}
+          initialSearch={initialSearch}
+        />
+      </div>
+    </div>
   );
 }
 
 function RequestsFallback() {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-2">
-      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-      <p className="text-sm">Loading technician requests...</p>
+    <div className="flex flex-col items-center justify-center rounded-3xl border border-[#C2C0B1] bg-[#EBECE4] py-20 px-6 text-muted-foreground gap-2.5 shadow-xs">
+      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#C2C0B1] bg-[#E2E1D8]/80">
+        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+      </div>
+      <p className="text-sm font-medium text-foreground">
+        Loading technician requests...
+      </p>
     </div>
   );
 }

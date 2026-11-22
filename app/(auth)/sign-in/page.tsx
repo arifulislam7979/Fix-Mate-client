@@ -90,11 +90,11 @@ function SignInForm() {
   };
 
   return (
-    <Card className="w-full max-w-md rounded-2xl border-border/60 bg-card/95 shadow-xl backdrop-blur">
-      <CardHeader className="space-y-2.5 pb-6 pt-8 text-center">
+    <Card className="w-full max-w-md rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] shadow-lg overflow-hidden">
+      <CardHeader className="space-y-2.5 pb-6 pt-8 text-center bg-[#E2E1D8]/75 border-b border-[#C2C0B1]">
         <Link
           href="/"
-          className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105"
+          className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-xs border border-primary/25 transition-transform hover:scale-105"
         >
           <Wrench className="h-6 w-6" />
         </Link>
@@ -108,7 +108,7 @@ function SignInForm() {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-5 px-6 sm:px-8">
+      <CardContent className="space-y-5 px-6 sm:px-8 pt-6 bg-[#EBECE4]">
         <form onSubmit={handleEmailSignIn} className="space-y-4">
           {/* Email Address */}
           <div className="space-y-1.5">
@@ -124,7 +124,7 @@ function SignInForm() {
                 id="email"
                 type="email"
                 placeholder="Enter Your Email"
-                className="h-11 rounded-xl border-border/80 bg-background pl-10 transition-all focus-visible:ring-2 focus-visible:ring-primary/30"
+                className="h-11 rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 pl-10 text-foreground placeholder:text-muted-foreground/80 transition-all focus-visible:bg-[#EBECE4] focus-visible:ring-2 focus-visible:ring-primary/30"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -147,7 +147,7 @@ function SignInForm() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 autoComplete="new-password"
-                className="h-11 rounded-xl border-border/80 bg-background pl-10 pr-10 transition-all focus-visible:ring-2 focus-visible:ring-primary/30"
+                className="h-11 rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 pl-10 pr-10 text-foreground placeholder:text-muted-foreground/80 transition-all focus-visible:bg-[#EBECE4] focus-visible:ring-2 focus-visible:ring-primary/30"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -170,7 +170,7 @@ function SignInForm() {
           {/* Submit Button */}
           <Button
             type="submit"
-            className="mt-2 h-11 w-full rounded-xl font-semibold shadow-md transition-all hover:opacity-95 cursor-pointer"
+            className="mt-2 h-11 w-full rounded-xl font-semibold shadow-xs transition-all hover:opacity-95 cursor-pointer"
             disabled={loading}
           >
             {loading ? (
@@ -187,10 +187,10 @@ function SignInForm() {
         {/* Divider */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border/80" />
+            <span className="w-full border-t border-[#C2C0B1]" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-3 font-medium text-muted-foreground">
+            <span className="bg-[#EBECE4] border border-[#C2C0B1] rounded-full px-3 py-0.5 font-medium text-muted-foreground">
               Or continue with
             </span>
           </div>
@@ -200,7 +200,7 @@ function SignInForm() {
         <Button
           type="button"
           variant="outline"
-          className="h-11 w-full rounded-xl border-border/80 font-medium transition-all hover:bg-muted/60"
+          className="h-11 w-full rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/75 text-foreground font-medium transition-all hover:bg-[#E2E1D8]"
           onClick={handleGoogleSignIn}
         >
           <svg
@@ -222,7 +222,7 @@ function SignInForm() {
         </Button>
       </CardContent>
 
-      <CardFooter className="justify-center rounded-b-2xl border-t border-border/60 bg-muted/20 py-4">
+      <CardFooter className="justify-center border-t border-[#C2C0B1] bg-[#E2E1D8]/75 py-4">
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link
@@ -243,7 +243,7 @@ function SignInForm() {
 
 const SignInPage = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-muted/40 via-background to-muted/40 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-[#EBECE4] px-4 py-12">
       <Suspense
         fallback={
           <div className="flex items-center gap-2 text-muted-foreground">

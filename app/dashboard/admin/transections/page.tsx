@@ -92,5 +92,9 @@ export default async function TransectionsPage() {
     paidAt: formatDateValue(doc.paidAt || doc.createdAt),
   }));
 
-  return <TransactionsView transactions={transactions} />;
+  return (
+    <div className="min-h-full rounded-3xl bg-[#EBECE4]/65 p-4 sm:p-6">
+      <TransactionsView transactions={transactions} />
+    </div>
+  );
 }

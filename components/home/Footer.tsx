@@ -65,21 +65,21 @@ function LinkedinLogoIcon({ className = "h-4 w-4" }: { className?: string }) {
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-[#EBECE4] border-t border-[#D5D6CC] text-[#111827]">
+    <footer className="w-full bg-[#DCDCD0] border-t-2 border-[#A9A694] text-[#0F172A]">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 pt-12 sm:pt-16 pb-8">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 pb-10 sm:pb-12 border-b border-[#D5D6CC]">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 pb-10 sm:pb-12 border-b border-[#A9A694]">
           {/* Brand & Tagline */}
           <div className="lg:col-span-4 space-y-3.5">
             <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <div className="h-10 w-10 rounded-xl bg-[#008A00] text-white flex items-center justify-center shadow-xs group-hover:bg-[#007500] transition-colors">
+              <div className="h-10 w-10 rounded-xl bg-[#006E00] text-white border border-[#005200] flex items-center justify-center shadow-xs group-hover:bg-[#005900] transition-colors">
                 <Wrench className="h-5 w-5" />
               </div>
-              <span className="text-2xl font-bold tracking-tight text-[#111827]">
-                Fix<span className="text-[#008A00]">Mate</span>
+              <span className="text-2xl font-bold tracking-tight text-[#0F172A]">
+                Fix<span className="text-[#006E00]">Mate</span>
               </span>
             </Link>
 
-            <p className="text-xs sm:text-sm text-[#4B5563] leading-relaxed max-w-sm">
+            <p className="text-xs sm:text-sm text-[#334155] font-medium leading-relaxed max-w-sm">
               Fast, transparent, and reliable repair services connecting you
               with verified technicians—at your doorstep or nearby.
             </p>
@@ -91,7 +91,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="FixMate on X"
-                className="h-9 w-9 rounded-xl border border-[#D5D6CC] bg-[#E2E1D8] text-[#374151] hover:bg-[#008A00] hover:text-white hover:border-[#008A00] flex items-center justify-center transition-colors"
+                className="h-9 w-9 rounded-xl border border-[#9E9B88] bg-[#C8C7B7] text-[#1E293B] hover:bg-[#006E00] hover:text-white hover:border-[#005200] flex items-center justify-center transition-colors"
               >
                 <XLogoIcon className="h-4 w-4" />
               </a>
@@ -100,7 +100,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="FixMate on GitHub"
-                className="h-9 w-9 rounded-xl border border-[#D5D6CC] bg-[#E2E1D8] text-[#374151] hover:bg-[#008A00] hover:text-white hover:border-[#008A00] flex items-center justify-center transition-colors"
+                className="h-9 w-9 rounded-xl border border-[#9E9B88] bg-[#C8C7B7] text-[#1E293B] hover:bg-[#006E00] hover:text-white hover:border-[#005200] flex items-center justify-center transition-colors"
               >
                 <GithubLogoIcon className="h-4 w-4" />
               </a>
@@ -109,7 +109,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="FixMate on LinkedIn"
-                className="h-9 w-9 rounded-xl border border-[#D5D6CC] bg-[#E2E1D8] text-[#374151] hover:bg-[#008A00] hover:text-white hover:border-[#008A00] flex items-center justify-center transition-colors"
+                className="h-9 w-9 rounded-xl border border-[#9E9B88] bg-[#C8C7B7] text-[#1E293B] hover:bg-[#006E00] hover:text-white hover:border-[#005200] flex items-center justify-center transition-colors"
               >
                 <LinkedinLogoIcon className="h-4 w-4" />
               </a>
@@ -117,16 +117,16 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="lg:col-span-2 space-y-3">
-            <h3 className="text-sm font-bold tracking-tight text-[#111827]">
+          <div className="lg:col-span-2 space-y-3 rounded-2xl border border-[#A9A694] bg-[#CECEBF] p-4 shadow-2xs">
+            <h3 className="text-sm font-bold tracking-tight text-[#0F172A] pb-2 border-b border-[#A9A694]">
               Quick Links
             </h3>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-[#4B5563]">
+            <ul className="space-y-2.5 text-xs sm:text-sm text-[#334155] font-medium">
               {QUICK_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="hover:text-[#008A00] transition-colors"
+                    className="hover:text-[#006E00] transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -136,16 +136,16 @@ export default function Footer() {
           </div>
 
           {/* Popular Categories */}
-          <div className="lg:col-span-3 space-y-3">
-            <h3 className="text-sm font-bold tracking-tight text-[#111827]">
+          <div className="lg:col-span-3 space-y-3 rounded-2xl border border-[#A9A694] bg-[#CECEBF] p-4 shadow-2xs">
+            <h3 className="text-sm font-bold tracking-tight text-[#0F172A] pb-2 border-b border-[#A9A694]">
               Popular Categories
             </h3>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-[#4B5563]">
+            <ul className="space-y-2.5 text-xs sm:text-sm text-[#334155] font-medium">
               {POPULAR_CATEGORIES.map((category) => (
                 <li key={category.label}>
                   <Link
                     href={category.href}
-                    className="hover:text-[#008A00] transition-colors"
+                    className="hover:text-[#006E00] transition-colors"
                   >
                     {category.label}
                   </Link>
@@ -155,31 +155,31 @@ export default function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div className="lg:col-span-3 space-y-3">
-            <h3 className="text-sm font-bold tracking-tight text-[#111827]">
+          <div className="lg:col-span-3 space-y-3 rounded-2xl border border-[#A9A694] bg-[#CECEBF] p-4 shadow-2xs">
+            <h3 className="text-sm font-bold tracking-tight text-[#0F172A] pb-2 border-b border-[#A9A694]">
               Contact Us
             </h3>
-            <ul className="space-y-3 text-xs sm:text-sm text-[#4B5563]">
+            <ul className="space-y-3 text-xs sm:text-sm text-[#334155] font-medium">
               <li className="flex items-start gap-2.5">
-                <Mail className="h-4 w-4 text-[#008A00] shrink-0 mt-0.5" />
+                <Mail className="h-4 w-4 text-[#006E00] shrink-0 mt-0.5" />
                 <a
                   href="mailto:support@fixmate.app"
-                  className="hover:text-[#008A00] transition-colors break-all"
+                  className="hover:text-[#006E00] transition-colors break-all"
                 >
                   support@fixmate.app
                 </a>
               </li>
               <li className="flex items-start gap-2.5">
-                <Phone className="h-4 w-4 text-[#008A00] shrink-0 mt-0.5" />
+                <Phone className="h-4 w-4 text-[#006E00] shrink-0 mt-0.5" />
                 <a
                   href="tel:+8801700000000"
-                  className="hover:text-[#008A00] transition-colors"
+                  className="hover:text-[#006E00] transition-colors"
                 >
                   +880 1700-000000
                 </a>
               </li>
               <li className="flex items-start gap-2.5">
-                <MapPin className="h-4 w-4 text-[#008A00] shrink-0 mt-0.5" />
+                <MapPin className="h-4 w-4 text-[#006E00] shrink-0 mt-0.5" />
                 <span>Ulipur, Kurigram, Rangpur, Bangladesh</span>
               </li>
             </ul>
@@ -187,18 +187,18 @@ export default function Footer() {
         </div>
 
         {/* Bottom Copyright Bar */}
-        <div className="pt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-xs text-[#4B5563]">
+        <div className="pt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-xs text-[#334155] font-medium">
           <p>© 2026 FixMate. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <Link
               href="/services"
-              className="hover:text-[#008A00] transition-colors"
+              className="hover:text-[#006E00] transition-colors"
             >
               Browse Services
             </Link>
             <Link
               href="/about"
-              className="hover:text-[#008A00] transition-colors"
+              className="hover:text-[#006E00] transition-colors"
             >
               About Platform
             </Link>

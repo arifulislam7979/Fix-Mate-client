@@ -245,23 +245,27 @@ export default async function TechnicianOverviewPage() {
     });
 
   return (
-    <TechnicianPage
-      technician={{
-        name: dbUser?.name || session.user.name || "Technician",
-        email: session.user.email,
-        phone: dbUser?.phone || "",
-        area: dbUser?.area || "",
-        role: dbUser?.role || "technician",
-        bio: dbUser?.bio || "",
-        image: dbUser?.image || session.user.image || "",
-      }}
-      stats={{
-        activeJobs,
-        completedJobs: completedList.length,
-        pendingJobs,
-        totalEarnings,
-      }}
-      recentBookings={recentBookings}
-    />
+    <div className="rounded-3xl border border-[#C2C0B1] bg-[#EBECE4] p-4 sm:p-6 shadow-xs">
+      <div className="rounded-2xl border border-[#C2C0B1] bg-[#E2E1D8]/55 p-3 sm:p-5">
+        <TechnicianPage
+          technician={{
+            name: dbUser?.name || session.user.name || "Technician",
+            email: session.user.email,
+            phone: dbUser?.phone || "",
+            area: dbUser?.area || "",
+            role: dbUser?.role || "technician",
+            bio: dbUser?.bio || "",
+            image: dbUser?.image || session.user.image || "",
+          }}
+          stats={{
+            activeJobs,
+            completedJobs: completedList.length,
+            pendingJobs,
+            totalEarnings,
+          }}
+          recentBookings={recentBookings}
+        />
+      </div>
+    </div>
   );
 }

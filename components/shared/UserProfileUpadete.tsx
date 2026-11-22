@@ -36,7 +36,7 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
 
   if (!user) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
+      <div className="rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] p-6 text-sm text-muted-foreground">
         User profile data is unavailable.
       </div>
     );
@@ -125,9 +125,9 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-6"
+      className="rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] p-6 shadow-xs space-y-6"
     >
-      <div className="border-b border-border/70 pb-4">
+      <div className="rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/80 px-4 py-3.5">
         <h2 className="text-lg font-bold">Update User Profile</h2>
         <p className="text-xs text-muted-foreground mt-0.5">
           Upload a profile photo via ImgBB and update your details. Email and
@@ -136,9 +136,9 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
       </div>
 
       {/* Avatar Preview & ImgBB Upload */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center rounded-xl border border-border/70 bg-muted/25 p-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 p-4">
         {image ? (
-          <div className="relative h-20 w-20 rounded-2xl overflow-hidden border border-border shrink-0">
+          <div className="relative h-20 w-20 rounded-2xl overflow-hidden border border-[#C2C0B1] bg-[#EBECE4] shrink-0">
             <Image
               src={image}
               alt={name || "Profile"}
@@ -148,7 +148,7 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
             />
           </div>
         ) : (
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 text-primary text-xl font-bold border border-primary/20 shrink-0">
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 text-primary text-xl font-bold border border-[#C2C0B1] shrink-0">
             {initials || <User className="h-8 w-8" />}
           </div>
         )}
@@ -160,7 +160,7 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
           </p>
 
           <div className="flex flex-wrap items-center gap-2.5 pt-1">
-            <label className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-3.5 py-2 text-xs font-semibold cursor-pointer hover:bg-muted/60 transition-colors">
+            <label className="inline-flex items-center gap-2 rounded-xl border border-[#C2C0B1] bg-[#EBECE4] px-3.5 py-2 text-xs font-semibold cursor-pointer hover:bg-[#E2E1D8] transition-colors">
               {uploadingImage ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -208,7 +208,7 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter your full name"
             required
-            className="w-full h-10 rounded-xl border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full h-10 rounded-xl border border-[#C2C0B1] bg-[#EBECE4] px-3 text-sm outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
 
@@ -223,7 +223,7 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="e.g. +880 17XX-XXXXXX"
-            className="w-full h-10 rounded-xl border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full h-10 rounded-xl border border-[#C2C0B1] bg-[#EBECE4] px-3 text-sm outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
 
@@ -238,7 +238,7 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
             value={area}
             onChange={(e) => setArea(e.target.value)}
             placeholder="e.g. Ulipur, Kurigram"
-            className="w-full h-10 rounded-xl border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full h-10 rounded-xl border border-[#C2C0B1] bg-[#EBECE4] px-3 text-sm outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
 
@@ -255,7 +255,7 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
             value={user.email || ""}
             disabled
             readOnly
-            className="w-full h-10 rounded-xl border border-border/70 bg-muted/60 px-3 text-sm text-muted-foreground cursor-not-allowed"
+            className="w-full h-10 rounded-xl border border-[#C2C0B1] bg-[#E2E1D8] px-3 text-sm text-muted-foreground cursor-not-allowed"
           />
         </div>
 
@@ -272,7 +272,7 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
             value={user.role || ""}
             disabled
             readOnly
-            className="w-full h-10 rounded-xl border border-border/70 bg-muted/60 px-3 text-sm capitalize text-muted-foreground cursor-not-allowed"
+            className="w-full h-10 rounded-xl border border-[#C2C0B1] bg-[#E2E1D8] px-3 text-sm capitalize text-muted-foreground cursor-not-allowed"
           />
         </div>
       </div>
@@ -288,11 +288,11 @@ const UserProfileUpadete = ({ user }: UserProfileUpadeteProps) => {
           value={bio}
           onChange={(e) => setBio(e.target.value)}
           placeholder="Write a short bio about yourself..."
-          className="w-full rounded-xl border border-border bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+          className="w-full rounded-xl border border-[#C2C0B1] bg-[#EBECE4] p-3 text-sm outline-none focus:ring-2 focus:ring-primary/30"
         />
       </div>
 
-      <div className="flex justify-end pt-2">
+      <div className="flex justify-end pt-3 border-t border-[#C2C0B1]">
         <Button
           type="submit"
           disabled={saving || uploadingImage}

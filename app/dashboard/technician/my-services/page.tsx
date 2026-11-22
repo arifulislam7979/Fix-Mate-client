@@ -36,5 +36,11 @@ export default async function MyServicesPage() {
 
   const initialServices = await getTechnicianServices(session.user.email);
 
-  return <MyServices initialServices={initialServices} />;
+  return (
+    <div className="rounded-3xl border border-[#C2C0B1] bg-[#EBECE4] p-4 sm:p-6 shadow-xs">
+      <div className="rounded-2xl border border-[#C2C0B1] bg-[#E2E1D8]/55 p-3 sm:p-5">
+        <MyServices initialServices={initialServices} />
+      </div>
+    </div>
+  );
 }

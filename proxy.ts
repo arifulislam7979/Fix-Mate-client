@@ -19,9 +19,7 @@ function getDashboardRouteByRole(role?: string): string {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const isAuthRoute = AUTH_ROUTES.some((route) =>
-    pathname.startsWith(route),
-  );
+  const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
 
   if (isAuthRoute) {
     const session = await auth.api.getSession({
@@ -31,10 +29,7 @@ export async function proxy(request: NextRequest) {
     if (session) {
       const role = session.user.role;
 
-      const targetUrl = new URL(
-        getDashboardRouteByRole(role),
-        request.url,
-      );
+      const targetUrl = new URL(getDashboardRouteByRole(role), request.url);
 
       return NextResponse.redirect(targetUrl);
     }

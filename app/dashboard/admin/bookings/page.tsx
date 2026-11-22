@@ -20,18 +20,20 @@ const BookingsPage = async ({ searchParams }: BookingsPageProps) => {
         : [];
 
   return (
-    <Suspense
-      fallback={
-        <div className="p-6 text-sm text-muted-foreground">
-          Loading bookings...
-        </div>
-      }
-    >
-      <AdminBookingsClient
-        initialBookings={normalizedBookings}
-        initialStatus={initialStatus}
-      />
-    </Suspense>
+    <div className="min-h-full rounded-3xl bg-[#EBECE4]/65 p-3 sm:p-6">
+      <Suspense
+        fallback={
+          <div className="p-6 rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] text-sm text-muted-foreground">
+            Loading bookings...
+          </div>
+        }
+      >
+        <AdminBookingsClient
+          initialBookings={normalizedBookings}
+          initialStatus={initialStatus}
+        />
+      </Suspense>
+    </div>
   );
 };
 

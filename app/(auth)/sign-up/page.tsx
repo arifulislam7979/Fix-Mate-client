@@ -66,19 +66,19 @@ export default function SignUpPage() {
         return;
       }
 
-      if(data) {
+      if (data) {
         toast.success("Account created successfully!");
-        router.push('/')
-        return
+        router.push("/");
+        return;
       }
-      
+
       if (role === "technician") {
         router.push("/dashboard/technician");
       } else {
         router.push("/dashboard/customer");
       }
     } catch {
-      toast.error( "Something went wrong.");
+      toast.error("Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -96,31 +96,40 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-12">
-      <Card className="w-full max-w-md shadow-lg border-border">
-        <CardHeader className="text-center space-y-2 pb-6">
-          <Link href="/" className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-[#EBECE4] px-4 py-12">
+      <Card className="w-full max-w-md rounded-2xl border border-[#C2C0B1] bg-[#EBECE4] shadow-lg overflow-hidden">
+        <CardHeader className="text-center space-y-2 pb-6 pt-8 bg-[#E2E1D8]/75 border-b border-[#C2C0B1]">
+          <Link
+            href="/"
+            className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-xs border border-primary/25 transition-transform hover:scale-105"
+          >
             <Wrench className="h-6 w-6" />
           </Link>
-          <CardTitle className="text-2xl font-bold tracking-tight">Create a FixMate Account</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold tracking-tight text-foreground">
+            Create a FixMate Account
+          </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
             Join as a Customer to request repairs or as a Technician to offer services
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 px-6 sm:px-8 pt-6 bg-[#EBECE4]">
           <form onSubmit={handleSignUp} className="space-y-4">
-            
             {/* Full Name */}
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="name"
+                className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              >
+                Full Name
+              </Label>
               <div className="relative">
                 <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
                   id="name"
                   type="text"
                   placeholder="Enter Your Name"
-                  className="pl-10"
+                  className="h-11 rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 pl-10 text-foreground placeholder:text-muted-foreground/80 transition-all focus-visible:bg-[#EBECE4] focus-visible:ring-2 focus-visible:ring-primary/30"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -129,15 +138,20 @@ export default function SignUpPage() {
             </div>
 
             {/* Email Address */}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="email"
+                className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              >
+                Email Address
+              </Label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="Enter Your Email"
-                  className="pl-10"
+                  className="h-11 rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 pl-10 text-foreground placeholder:text-muted-foreground/80 transition-all focus-visible:bg-[#EBECE4] focus-visible:ring-2 focus-visible:ring-primary/30"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -146,15 +160,20 @@ export default function SignUpPage() {
             </div>
 
             {/* Password */}
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="password"
+                className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              >
+                Password
+              </Label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="New Password"
-                  className="pl-10 pr-10"
+                  className="h-11 rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 pl-10 pr-10 text-foreground placeholder:text-muted-foreground/80 transition-all focus-visible:bg-[#EBECE4] focus-visible:ring-2 focus-visible:ring-primary/30"
                   value={password}
                   autoComplete="new-password"
                   onChange={(e) => setPassword(e.target.value)}
@@ -163,26 +182,36 @@ export default function SignUpPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label="Toggle password visibility"
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Must be 6+ chars with at least one uppercase & lowercase letter.
+                Must be 6+ chars with at least one uppercase &amp; lowercase letter.
               </p>
             </div>
 
             {/* Confirm Password */}
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="confirmPassword"
+                className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              >
+                Confirm Password
+              </Label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm Password"
-                  className="pl-10 pr-10"
+                  className="h-11 rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/65 pl-10 pr-10 text-foreground placeholder:text-muted-foreground/80 transition-all focus-visible:bg-[#EBECE4] focus-visible:ring-2 focus-visible:ring-primary/30"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -190,65 +219,103 @@ export default function SignUpPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label="Toggle confirm password visibility"
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
                 >
-                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
 
             {/* Role Selection */}
             <div className="space-y-2 pt-1">
-              <Label>Select Your Role</Label>
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Select Your Role
+              </Label>
               <RadioGroup
                 defaultValue="customer"
                 value={role}
                 onValueChange={(val) => setRole(val as "customer" | "technician")}
-                className="grid grid-cols-2 gap-4"
+                className="grid grid-cols-2 gap-3.5"
               >
-                <div className="flex items-center space-x-2 border rounded-xl p-3 cursor-pointer hover:bg-muted/50 transition has-checked:border-primary has-checked:bg-primary/5">
+                <div className="flex items-center space-x-2.5 border border-[#C2C0B1] bg-[#E2E1D8]/65 rounded-xl p-3 cursor-pointer hover:bg-[#E2E1D8] transition has-checked:border-primary has-checked:bg-primary/10">
                   <RadioGroupItem value="customer" id="customer" />
-                  <Label htmlFor="customer" className="cursor-pointer font-medium">Customer</Label>
+                  <Label
+                    htmlFor="customer"
+                    className="cursor-pointer font-semibold text-sm text-foreground"
+                  >
+                    Customer
+                  </Label>
                 </div>
-                <div className="flex items-center space-x-2 border rounded-xl p-3 cursor-pointer hover:bg-muted/50 transition has-checked:border-primary has-checked:bg-primary/5">
+                <div className="flex items-center space-x-2.5 border border-[#C2C0B1] bg-[#E2E1D8]/65 rounded-xl p-3 cursor-pointer hover:bg-[#E2E1D8] transition has-checked:border-primary has-checked:bg-primary/10">
                   <RadioGroupItem value="technician" id="technician" />
-                  <Label htmlFor="technician" className="cursor-pointer font-medium">Technician</Label>
+                  <Label
+                    htmlFor="technician"
+                    className="cursor-pointer font-semibold text-sm text-foreground"
+                  >
+                    Technician
+                  </Label>
                 </div>
               </RadioGroup>
             </div>
 
             {/* Submit Button */}
-            <Button type="submit" className="w-full mt-2 cursor-pointer" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full h-11 mt-2 rounded-xl font-semibold shadow-xs cursor-pointer"
+              disabled={loading}
+            >
               {loading ? "Creating Account..." : "Sign Up"}
             </Button>
           </form>
 
-          <div className="relative my-4">
+          <div className="relative my-5">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
+              <span className="w-full border-t border-[#C2C0B1]" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-[#EBECE4] border border-[#C2C0B1] rounded-full px-3 py-0.5 font-medium text-muted-foreground">
+                Or continue with
+              </span>
             </div>
           </div>
 
           <Button
             type="button"
             variant="outline"
-            className="w-full cursor-pointer"
+            className="w-full h-11 rounded-xl border border-[#C2C0B1] bg-[#E2E1D8]/75 text-foreground font-medium cursor-pointer transition-all hover:bg-[#E2E1D8]"
             onClick={handleGoogleSignUp}
           >
-            <svg className="mr-2 h-4 w-4 " aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-              <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
+            <svg
+              className="mr-2.5 h-4 w-4"
+              aria-hidden="true"
+              focusable="false"
+              data-prefix="fab"
+              data-icon="google"
+              role="img"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 488 512"
+            >
+              <path
+                fill="currentColor"
+                d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
+              ></path>
             </svg>
             Continue with Google
           </Button>
         </CardContent>
 
-        <CardFooter className="justify-center border-t py-4">
+        <CardFooter className="justify-center border-t border-[#C2C0B1] bg-[#E2E1D8]/75 py-4">
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/sign-in" className="text-primary font-medium hover:underline">
+            <Link
+              href="/sign-in"
+              className="text-primary font-semibold hover:underline"
+            >
               Sign In
             </Link>
           </p>
