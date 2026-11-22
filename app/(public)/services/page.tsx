@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { connection } from "next/server";
 import {
   Card,
   CardContent,
@@ -75,6 +76,8 @@ async function ApprovedServicesList({
 }: {
   queryParams: ApprovedServicesQueryParams;
 }) {
+  await connection();
+
   const services: IServiceItem[] = await getApprovedServices(queryParams);
 
   const hasFilter = Boolean(
@@ -179,6 +182,8 @@ async function DynamicServicesSection({
 }: {
   searchParams: Promise<ServicesSearchParams>;
 }) {
+  await connection();
+
   const resolvedParams = await searchParams;
   const queryParams: ApprovedServicesQueryParams = {
     q: resolvedParams.q,

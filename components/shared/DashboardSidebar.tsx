@@ -117,7 +117,7 @@ export default function DashboardSidebar({
   const navItems = getNavItems();
 
   return (
-    <div className="flex h-full flex-col justify-between py-6 px-4 bg-slate-900 text-slate-100 border-r border-slate-800">
+    <div className="flex h-full flex-col justify-between py-6 px-4 bg-[#D6D6C9] text-foreground border-r border-stone-400/70">
       <div className="space-y-6">
         {/* Brand Logo */}
         <Link
@@ -125,30 +125,30 @@ export default function DashboardSidebar({
           onClick={onItemClick}
           className="flex items-center gap-2.5 px-2 group"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm transition-transform group-hover:scale-105">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-2xs ring-1 ring-black/10 transition-transform group-hover:scale-105">
             <Wrench className="h-5 w-5" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-white">
+          <span className="text-xl font-bold tracking-tight text-foreground">
             Fix<span className="text-primary">Mate</span>
           </span>
         </Link>
 
         {/* User Info Card */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-3.5 shadow-xs">
+        <div className="rounded-2xl border border-stone-400/65 bg-[#C6C6B8]/90 p-3.5 shadow-2xs">
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border border-slate-700">
+            <Avatar className="h-10 w-10 border border-stone-400/70 bg-[#F6F6F1]">
               <AvatarImage src={user?.image || ""} alt={user?.name || "User"} />
-              <AvatarFallback className="bg-primary/20 text-primary-foreground font-semibold">
+              <AvatarFallback className="bg-primary/15 text-primary font-bold">
                 {user?.name?.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-white">
-                {user?.name}
+              <p className="truncate text-sm font-semibold text-foreground">
+                {user?.name || "User"}
               </p>
               <Badge
                 variant="secondary"
-                className="mt-1 capitalize text-[10px] font-semibold bg-primary/20 text-primary-foreground border-primary/30"
+                className="mt-1 capitalize text-[10px] font-semibold bg-primary/15 text-primary border border-primary/25"
               >
                 {role} Panel
               </Badge>
@@ -169,12 +169,12 @@ export default function DashboardSidebar({
                 className={cn(
                   "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all",
                   active
-                    ? "bg-primary text-primary-foreground shadow-sm font-semibold"
-                    : "text-slate-400 hover:bg-slate-800/80 hover:text-white",
+                    ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                    : "text-stone-800 hover:bg-[#C2C2B3] hover:text-foreground",
                 )}
               >
-                <Icon className="h-4 w-4" />
-                <span>{item.name}</span>
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="truncate">{item.name}</span>
               </Link>
             );
           })}
@@ -182,20 +182,20 @@ export default function DashboardSidebar({
       </div>
 
       {/* Bottom Actions */}
-      <div className="space-y-2 border-t border-slate-800 pt-4">
+      <div className="space-y-2 border-t border-stone-400/70 pt-4">
         <Link
           href="/"
           onClick={onItemClick}
-          className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-slate-800/80 hover:text-white"
+          className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-stone-800 transition-colors hover:bg-[#C2C2B3] hover:text-foreground"
         >
-          <Home className="h-4 w-4" />
+          <Home className="h-4 w-4 shrink-0" />
           <span>Back to Home</span>
         </Link>
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-red-400 transition-colors hover:bg-red-950/40 hover:text-red-300 cursor-pointer"
+          className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-500/15 hover:text-red-800 cursor-pointer"
         >
-          <LogOut className="h-4 w-4 text-red-400 " />
+          <LogOut className="h-4 w-4 shrink-0 text-red-700" />
           <span>Sign Out</span>
         </button>
       </div>
