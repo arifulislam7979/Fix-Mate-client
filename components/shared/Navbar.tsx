@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -42,6 +42,7 @@ interface SessionUser {
 
 function NavbarContent() {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session, isPending } = useSession();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -56,14 +57,11 @@ function NavbarContent() {
 
   const handleSignOut = async () => {
     try {
-      await signOut({
-        fetchOptions: {
-          onSuccess: () => {
-            toast.success("Signed out successfully");
-            window.location.href = "/sign-in";
-          },
-        },
-      });
+      const { error } = await signOut();
+      if (error) throw new Error(error.message);
+      toast.success("Signed out successfully");
+      router.replace("/sign-in");
+      router.refresh();
     } catch {
       toast.error("Failed to sign out");
     }
@@ -124,7 +122,7 @@ function NavbarContent() {
                 <div className="flex items-center gap-2.5 rounded-full border border-stone-200/90 bg-white/90 px-2.5 py-1.5 shadow-2xs transition-all hover:bg-white hover:border-stone-300 cursor-pointer">
                   <Avatar className="h-7 w-7 lg:h-8 lg:w-8 border border-stone-200">
                     <AvatarImage
-                      src={user?.image || ""}
+                      src={user?.image || undefined}
                       alt={user?.name || "User"}
                     />
                     <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
@@ -161,20 +159,20 @@ function NavbarContent() {
                   </div>
                 </DropdownMenuGroup>
 
-                <DropdownMenuItem className="p-0 rounded-xl focus:bg-transparent">
+                <DropdownMenuItem >
                   <Link
                     href={getDashboardRoute()}
-                    className="flex items-center gap-2.5 w-full rounded-xl py-2.5 px-3 font-medium text-sm text-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                    className="flex items-center gap-2.5 w-full rounded-xl py-2.5 px-3 font-medium text-sm text-foreground cursor-pointer transition-colors hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary"
                   >
                     <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
                     <span>Dashboard</span>
                   </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem className="p-0 rounded-xl focus:bg-transparent">
+                <DropdownMenuItem>
                   <Link
                     href="/dashboard/profile"
-                    className="flex items-center gap-2.5 w-full rounded-xl py-2.5 px-3 font-medium text-sm text-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                    className="flex items-center gap-2.5 w-full rounded-xl py-2.5 px-3 font-medium text-sm text-foreground cursor-pointer transition-colors hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary"
                   >
                     <User className="h-4 w-4 text-muted-foreground" />
                     <span>Update Profile</span>
@@ -227,7 +225,7 @@ function NavbarContent() {
             >
               <Avatar className="h-8 w-8">
                 <AvatarImage
-                  src={user?.image || ""}
+                  src={user?.image || undefined}
                   alt={user?.name || "User"}
                 />
                 <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
@@ -297,7 +295,7 @@ function NavbarContent() {
                     <div className="flex items-center gap-3 p-3 bg-white/80 border border-stone-200/80 rounded-xl mb-3">
                       <Avatar className="h-10 w-10 border border-stone-200 shrink-0">
                         <AvatarImage
-                          src={user?.image || ""}
+                          src={user?.image || undefined}
                           alt={user?.name || "User"}
                         />
                         <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">

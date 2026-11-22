@@ -45,10 +45,12 @@ export const updateUserProfile = async (
   userId: string,
   payload: UpdateProfilePayload,
 ) => {
+  const token = await getToken()
   const res = await fetch(`${BASE_URL}/users/${userId}/profile`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
   });
