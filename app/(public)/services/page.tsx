@@ -34,10 +34,9 @@ const DEFAULT_CATEGORIES = [
   "AC",
   "Refrigerator",
   "Washing Machine",
-  "Television",
+  "TV",
   "Laptop & PC",
   "Smartphone",
-  "Microwave",
 ];
 
 const DEFAULT_MODES = ["Home Visit", "Shop Drop-off"];
